@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+    everything:
+        command: '/lhcluster-test/lhcluster_config.json --broker=all --clientproxy=all --client=all --worker=all'
+        image: lhcluster:test-env
+        ports:
+            - "8001"
+            - "8002"
+            - "8003"
+            - "8004"
+            - "8005"
+            - "8006"
+        volumes:
+            - .:/lhcluster-test

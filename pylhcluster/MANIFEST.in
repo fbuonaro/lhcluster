@@ -1,0 +1,2 @@
+recursive-include pylhcluster/plhc_ext *.so
+recursive-include pylhcluster/plhc_api/logging_config_templates *.ini

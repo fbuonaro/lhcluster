@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+    notify-broker:
+        command: '/lhcluster-test/lhcluster_config.json --broker=notify-broker'
+        image: lhcluster:test-env
+        ports:
+            - "8001"
+            - "8002"
+        volumes:
+            - .:/lhcluster-test
+
+    notify-notifybroker:
+        command: '/lhcluster-test/lhcluster_config.json --notifybroker=notify-notifybroker'
+        image: lhcluster:test-env
+        ports:
+            - "8001"
+            - "8002"
+        volumes:
+            - .:/lhcluster-test
+
+    notify-clientproxy:
+        command: '/lhcluster-test/lhcluster_config.json --clientproxy=notify-clientproxy'
+        depends_on:
+            - notify-broker
+        image: lhcluster:test-env
+        ports:
+            - "8003"
+            - "8004"
+        volumes:
+            - .:/lhcluster-test
+
+    notify-client:
+        command: '/lhcluster-test/lhcluster_config.json --client=notify-client'
+        depends_on:
+            - notify-clientproxy
+            - notify-notifybroker
+            - notify-worker
+        deploy:
+            mode: replicated
+            replicas: 3
+        image: lhcluster:test-env
+        ports:
+            - "8005"
+        volumes:
+            - .:/lhcluster-test
+
+    notify-worker:
+        command: '/lhcluster-test/lhcluster_config.json --worker=notify-worker'
+        depends_on:
+            - notify-broker
+            - notify-notifybroker
+        deploy:
+            mode: replicated
+            replicas: 3
+            endpoint_mode: vip
+        image: lhcluster:test-env
+        ports:
+            - "8006"
+        volumes:
+            - .:/lhcluster-test

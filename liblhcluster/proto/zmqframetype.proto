@@ -1,0 +1,50 @@
+// [START declaration]
+syntax = "proto3";
+
+package LHClusterNS;
+
+option optimize_for = LITE_RUNTIME;
+
+import "google/protobuf/timestamp.proto";
+// [END declaration]
+
+// [START messages]
+message ZMQFrame_time_t
+{
+    bool keep = 1;
+    google.protobuf.Timestamp v = 2;
+}
+
+message ZMQFrame_int32_t
+{
+    bool keep = 1;
+    int32 v = 2;
+}
+
+message ZMQFrame_uint32_t
+{
+    bool keep = 1;
+    uint32 v = 2;
+}
+
+message ZMQFrame_uint64_t
+{
+    bool keep = 1;
+    uint64 v = 2;
+}
+
+message ZMQFrame_string_t
+{
+    bool keep = 1;
+    string v = 2;
+}
+
+message ZMQFrame_versionflags_t
+{
+    bool keep = 1;
+    uint32 vmajor = 2;
+    uint32 vminor = 3;
+    uint64 vflags = 4;
+}
+
+// [END messages]

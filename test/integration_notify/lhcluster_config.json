@@ -1,0 +1,121 @@
+{
+    "name": "notify_integration_test",
+    "broker":
+    {
+        "notify-broker":
+        {
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "backendEndpointType": "EndpointType.TCP",
+            "backendEndpointBaseAddress": "0.0.0.0",
+            "backendEndpointPort": 8002,
+            "frontendEndpointType": "EndpointType.TCP",
+            "frontendEndpointBaseAddress": "0.0.0.0",
+            "frontendEndpointPort": 8001
+        }
+    },
+    "notifybroker":
+    {
+        "notify-notifybroker":
+        {
+            "frontendEndpointType": "EndpointType.TCP",
+            "frontendEndpointBaseAddress": "0.0.0.0",
+            "frontendEndpointPort": 57869,
+            "backendEndpointType": "EndpointType.TCP",
+            "backendEndpointBaseAddress": "0.0.0.0",
+            "backendEndpointPort": 57879
+        }
+    },
+    "clientproxy":
+    {
+        "notify-clientproxy":
+        {
+            "brokerFrontendEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8001,
+                "endpointBaseAddress": "notify-broker"
+            },
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "selfBrokerMessagingEndpointType": "EndpointType.TCP",
+            "selfBrokerMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfBrokerMessagingEndpointPort": 8003,
+            "selfClientMessagingEndpointType": "EndpointType.TCP",
+            "selfClientMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfClientMessagingEndpointPort": 8004
+        }
+    },
+    "client":
+    {
+        "notify-client":
+        {
+            "cpClientMessagingEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8004,
+                "endpointBaseAddress": "notify-clientproxy"
+            },
+            "clientEndpointType": "EndpointType.TCP",
+            "clientEndpointBaseAddress": "0.0.0.0",
+            "clientEndpointPort": 8005,
+            "cluster":
+            {
+                "timeoutS": 1
+            },
+            "impl":
+            {
+                "module": "pylhcluster_test.plhc_test",
+                "class": "NotifyClient"
+            },
+            "implConfig":
+            {
+                "publisherEndpoint":
+                {
+                    "endpointType": "EndpointType.TCP",
+                    "endpointBaseAddress": "0.0.0.0",
+                    "endpointPort": 57869
+                },
+                "numAsyncRequests": 50,
+                "numSyncRequests": 50
+            }
+        }
+    },
+    "worker":
+    {
+        "notify-worker":
+        {
+            "brokerBackendEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8002,
+                "endpointBaseAddress": "notify-broker"
+            },
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "impl":
+            {
+                "module": "pylhcluster_test.plhc_test",
+                "class": "NotifyRequestHandler"
+            },
+            "implConfig":
+            {
+                "subscriberEndpoint":
+                {
+                    "endpointType": "EndpointType.TCP",
+                    "endpointBaseAddress": "127.0.0.1",
+                    "endpointPort": 57879
+                }
+            },
+            "selfMessagingEndpointType": "EndpointType.TCP",
+            "selfMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfMessagingEndpointPort": 8006
+        }
+    }
+}

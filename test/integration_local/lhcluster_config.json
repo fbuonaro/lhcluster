@@ -1,0 +1,89 @@
+{
+    "name": "simple_integration_test",
+    "broker":
+    {
+        "simple_broker":
+        {
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "backendEndpointType": "EndpointType.TCP",
+            "backendEndpointBaseAddress": "0.0.0.0",
+            "backendEndpointPort": 8002,
+            "frontendEndpointType": "EndpointType.TCP",
+            "frontendEndpointBaseAddress": "0.0.0.0",
+            "frontendEndpointPort": 8001
+        }
+    },
+    "clientproxy":
+    {
+        "simple_clientproxy":
+        {
+            "brokerFrontendEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8001,
+                "endpointBaseAddress": "localhost"
+            },
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "selfBrokerMessagingEndpointType": "EndpointType.TCP",
+            "selfBrokerMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfBrokerMessagingEndpointPort": 8003,
+            "selfClientMessagingEndpointType": "EndpointType.TCP",
+            "selfClientMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfClientMessagingEndpointPort": 8004
+        }
+    },
+    "client":
+    {
+        "simple_client":
+        {
+            "cpClientMessagingEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8004,
+                "endpointBaseAddress": "localhost"
+            },
+            "clientEndpointType": "EndpointType.TCP",
+            "clientEndpointBaseAddress": "0.0.0.0",
+            "clientEndpointPort": 8005,
+            "cluster":
+            {
+                "timeoutS": 1
+            },
+            "impl":
+            {
+                "module": "pylhcluster_test.plhc_test",
+                "class": "BasicClient"
+            }
+        }
+    },
+    "worker":
+    {
+        "simple_worker":
+        {
+            "brokerBackendEndpoint":
+            {
+                "endpointType": "EndpointType.TCP",
+                "endpointPort": 8002,
+                "endpointBaseAddress": "localhost"
+            },
+            "cluster":
+            {
+                "stopAfterS": 10
+            },
+            "impl":
+            {
+                "module": "pylhcluster_test.plhc_test",
+                "class": "BasicRequestHandler"
+            },
+            "selfMessagingEndpointType": "EndpointType.TCP",
+            "selfMessagingEndpointBaseAddress": "0.0.0.0",
+            "selfMessagingEndpointPort": 8006
+        }
+    }
+}

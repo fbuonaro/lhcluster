@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+    simple-broker:
+        command: '/lhcluster-test/lhcluster_config.json --broker=simple-broker'
+        image: lhcluster:test-env
+        ports:
+            - "8001"
+            - "8002"
+        volumes:
+            - .:/lhcluster-test
+
+    simple-clientproxy:
+        command: '/lhcluster-test/lhcluster_config.json --clientproxy=simple-clientproxy'
+        depends_on:
+            - simple-broker
+        image: lhcluster:test-env
+        ports:
+            - "8003"
+            - "8004"
+        volumes:
+            - .:/lhcluster-test
+
+    simple-client:
+        command: '/lhcluster-test/lhcluster_config.json --client=simple-client'
+        depends_on:
+            - simple-clientproxy
+        deploy:
+            mode: replicated
+            replicas: 3
+        image: lhcluster:test-env
+        ports:
+            - "8005"
+        volumes:
+            - .:/lhcluster-test
+
+    simple-worker:
+        command: '/lhcluster-test/lhcluster_config.json --worker=simple-worker'
+        depends_on:
+            - simple-broker
+            - simple-clientproxy
+        deploy:
+            mode: replicated
+            replicas: 3
+            endpoint_mode: vip
+        image: lhcluster:test-env
+        ports:
+            - "8006"
+        volumes:
+            - .:/lhcluster-test
