@@ -75,7 +75,7 @@ target_link_libraries( pylhclusterext
 target_include_directories( pylhclusterext
     PRIVATE
         "${Boost_INCLUDE_DIR}"
-        "${Python3_INCLUDE_DIR}"
+        "${Python3_INCLUDE_DIRS}"
         "${LIB_INC_DIR}/pylhcluster" )
 
 ##############################################################

@@ -9,7 +9,7 @@ LABEL lhcluster-stage-test-env="no"
 LABEL lhcluster-stage-main="no"
 
 RUN yum -y --enablerepo=extras install epel-release && \
-    yum -y install https://centos7.iuscommunity.org/ius-release.rpm &&\
+    yum -y install https://repo.ius.io/ius-release-el7.rpm && \
     yum -y install \
         boost169-log \
         boost169-python3 \
