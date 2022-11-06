@@ -34,28 +34,31 @@ namespace LHClusterNS
 
     class LHClusterLogging
     {
-        public:
-            static void InitializeGenericLogging( const char* settingsFilePath );
-            static void InitializeGenericLogging( std::istream& is );
+    public:
+        static void InitializeGenericLogging( const char* settingsFilePath );
+        static void InitializeGenericLogging( std::istream& is );
 
-        private:
-            LHClusterLogging()
-            {
-            }
+    private:
+        LHClusterLogging()
+        {
+        }
     };
 }
 
 // Singleton logger
-BOOST_LOG_GLOBAL_LOGGER( LHClusterLoggerGeneric, LHClusterNS::LoggerType );
+BOOST_LOG_GLOBAL_LOGGER( LHClusterLoggerGeneric, LHClusterNS::LoggerType )
 // TODO - another logger for stats LHClusterLoggerStats
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 // Custom Attributes
 // Meant to be used in one scope per thread level
 // i.e. at the topmost handler
 BOOST_LOG_ATTRIBUTE_KEYWORD(
-    LHClusterAttrActor,  LHCLUSTER_LOGGER_RECORD_ATTR_NAME_ACTOR,  std::string );
-BOOST_LOG_ATTRIBUTE_KEYWORD(
-    LHClusterAttrAction, LHCLUSTER_LOGGER_RECORD_ATTR_NAME_ACTION, std::string );
+    LHClusterAttrActor, LHCLUSTER_LOGGER_RECORD_ATTR_NAME_ACTOR, std::string )
+    BOOST_LOG_ATTRIBUTE_KEYWORD(
+        LHClusterAttrAction, LHCLUSTER_LOGGER_RECORD_ATTR_NAME_ACTION, std::string )
+#pragma GCC diagnostic pop
 
 
 #endif

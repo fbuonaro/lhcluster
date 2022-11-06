@@ -21,175 +21,175 @@ namespace TestLHClusterNS
 
     class TestNotifyBroker : public ::testing::Test
     {
-        protected:
+    protected:
 
-            void SetUp()
-            {
-            }
+        void SetUp()
+        {
+        }
 
-            void Tear()
-            {
-            }
+        void Tear()
+        {
+        }
 
-            // pub connects to backend, sub to frontend
+        // pub connects to backend, sub to frontend
 
-            NotifyBrokerParameters getNotifyBrokerParameters()
-            {
-                NotifyBrokerParameters brokerParams;
+        NotifyBrokerParameters getNotifyBrokerParameters()
+        {
+            NotifyBrokerParameters brokerParams;
 
-                brokerParams.SetFrontendMessagingEndpoint(
-                    Endpoint( EndpointType::InterThread, "testnotifybrokere2e_fe.zitc" ) );
-                brokerParams.SetBackendMessagingEndpoint(
-                    Endpoint( EndpointType::InterThread, "testnotifybrokere2e_be.zitc" ) );
+            brokerParams.SetFrontendMessagingEndpoint(
+                Endpoint( EndpointType::InterThread, "testnotifybrokere2e_fe.zitc" ) );
+            brokerParams.SetBackendMessagingEndpoint(
+                Endpoint( EndpointType::InterThread, "testnotifybrokere2e_be.zitc" ) );
 
-                return brokerParams;
-            }
+            return brokerParams;
+        }
 
-            NotifyPublisherParameters getNotifyPubParameters(
-                const NotifyBrokerParameters& brokerParams )
-            {
-                NotifyPublisherParameters pubParams;
+        NotifyPublisherParameters getNotifyPubParameters(
+            const NotifyBrokerParameters& brokerParams )
+        {
+            NotifyPublisherParameters pubParams;
 
 #ifndef DIRECT_TO_PUB
-                pubParams.SetProxyEndpoint( brokerParams.GetBackendMessagingEndpoint() );
+            pubParams.SetProxyEndpoint( brokerParams.GetBackendMessagingEndpoint() );
 #else
-                pubParams.SetSelfEndpoint( brokerParams.GetFrontendMessagingEndpoint() );
+            pubParams.SetSelfEndpoint( brokerParams.GetFrontendMessagingEndpoint() );
 #endif
 
-                return pubParams;
-            }
+            return pubParams;
+        }
 
-            NotifySubscriberParameters getNotifySubParameters(
-                const NotifyBrokerParameters& brokerParams )
-            {
-                NotifySubscriberParameters subParams;
+        NotifySubscriberParameters getNotifySubParameters(
+            const NotifyBrokerParameters& brokerParams )
+        {
+            NotifySubscriberParameters subParams;
 
-                subParams.SetSelfControllerEndpoint(
-                    Endpoint( EndpointType::InterThread, "testnotifybrokere2e_subcontroller.zitc" ) );
-                subParams.SetPublisherEndpoint( brokerParams.GetFrontendMessagingEndpoint() );
+            subParams.SetSelfControllerEndpoint(
+                Endpoint( EndpointType::InterThread, "testnotifybrokere2e_subcontroller.zitc" ) );
+            subParams.SetPublisherEndpoint( brokerParams.GetFrontendMessagingEndpoint() );
 
-                return subParams;
-            }
+            return subParams;
+        }
     };
 
     class TestNotifyHandlerEndToEnd1 : public INotifyHandler
     {
-        public:
-            unordered_map< NotificationType, vector< pair< RequestId, string > > > notifications;
-            unordered_map< NotificationType, int > expectedNotifications;
-            int extraMessagesReceived;
-            int badMessagesReceived;
+    public:
+        unordered_map< NotificationType, vector< pair< RequestId, string > > > notifications;
+        unordered_map< NotificationType, int > expectedNotifications;
+        int extraMessagesReceived;
+        int badMessagesReceived;
 
-            TestNotifyHandlerEndToEnd1()
+        TestNotifyHandlerEndToEnd1()
             : INotifyHandler()
             , notifications()
             , expectedNotifications()
             , extraMessagesReceived( 0 )
             , badMessagesReceived( 0 )
+        {
+        }
+
+        ~TestNotifyHandlerEndToEnd1()
+        {
+        }
+
+        RequestStatus Process(
+            const NotificationType& notificationType,
+            ZMQMessage* notificationMsg )
+        {
+            auto itExpected = expectedNotifications.find( notificationType );
+            int msgSize = zmsg_size( notificationMsg );
+            RequestStatus requestStatus = RequestStatus::Failed;
+
+            fprintf( stderr, "RECEIVED[%s|%d]\n", notificationType.c_str(), msgSize );
+
+            if ( itExpected != expectedNotifications.end() )
             {
-            }
-
-            ~TestNotifyHandlerEndToEnd1()
-            {
-            }
-
-            RequestStatus Process(
-                const NotificationType& notificationType,
-                ZMQMessage* notificationMsg )
-            {
-                auto itExpected = expectedNotifications.find( notificationType );
-                int msgSize = zmsg_size( notificationMsg ); 
-                RequestStatus requestStatus = RequestStatus::Failed;
-
-                fprintf( stderr, "RECEIVED[%s|%d]\n", notificationType.c_str(), msgSize );
-
-                if( itExpected != expectedNotifications.end() )
+                if ( msgSize == 2 )
                 {
-                    if( msgSize == 2 )
+                    Impl::ZMQFrameHandler frameHandler;
+                    RequestId requestId =
+                        frameHandler.get_frame_value< RequestId >( zmsg_first( notificationMsg ) );
+                    string messageString =
+                        frameHandler.get_frame_value< string >( zmsg_next( notificationMsg ) );
+                    auto itReceived = notifications.find( notificationType );
+
+                    if ( itReceived != notifications.end() )
                     {
-                        Impl::ZMQFrameHandler frameHandler;
-                        RequestId requestId =
-                            frameHandler.get_frame_value< RequestId >( zmsg_first( notificationMsg ) );
-                        string messageString =
-                            frameHandler.get_frame_value< string >( zmsg_next( notificationMsg ) );
-                        auto itReceived = notifications.find( notificationType );
+                        int receivedCount = itReceived->second.size();
 
-                        if( itReceived != notifications.end() )
+                        if ( receivedCount < itExpected->second )
                         {
-                            int receivedCount = itReceived->second.size();
+                            itReceived->second.emplace_back( requestId, messageString );
 
-                            if( receivedCount < itExpected->second )
+                            if ( receivedCount == ( itExpected->second - 1 ) )
                             {
-                                itReceived->second.emplace_back( requestId, messageString );
-
-                                if( receivedCount == ( itExpected->second - 1 ) )
-                                {
-                                    requestStatus = RequestStatus::Succeeded;
-                                }
-                                else
-                                {
-                                    requestStatus = RequestStatus::InProgress;
-                                }
+                                requestStatus = RequestStatus::Succeeded;
                             }
                             else
                             {
-                                ++extraMessagesReceived;
+                                requestStatus = RequestStatus::InProgress;
                             }
                         }
                         else
                         {
-                            notifications.emplace(
-                                notificationType,
-                                vector< pair< RequestId, string > >{
-                                     pair< RequestId, string > (
-                                        requestId,
-                                        messageString ) } );
-                            requestStatus = RequestStatus::InProgress;
+                            ++extraMessagesReceived;
                         }
                     }
                     else
                     {
-                        ++badMessagesReceived;
+                        notifications.emplace(
+                            notificationType,
+                            vector< pair< RequestId, string > >{
+                            pair< RequestId, string >(
+                                requestId,
+                                messageString ) } );
+                        requestStatus = RequestStatus::InProgress;
                     }
                 }
                 else
                 {
-                    if( msgSize == 1 )
-                    {
-                        Impl::ZMQFrameHandler frameHandler;
-                        int expectedCount = frameHandler.get_frame_value< int >(
-                            zmsg_first( notificationMsg ) );
-                        expectedNotifications.emplace( notificationType, expectedCount );
-                        requestStatus = RequestStatus::New;
-                    }
-                    else
-                    {
-                        ++badMessagesReceived;
-                    }
+                    ++badMessagesReceived;
                 }
-
-                return requestStatus;
             }
+            else
+            {
+                if ( msgSize == 1 )
+                {
+                    Impl::ZMQFrameHandler frameHandler;
+                    int expectedCount = frameHandler.get_frame_value< int >(
+                        zmsg_first( notificationMsg ) );
+                    expectedNotifications.emplace( notificationType, expectedCount );
+                    requestStatus = RequestStatus::New;
+                }
+                else
+                {
+                    ++badMessagesReceived;
+                }
+            }
+
+            return requestStatus;
+        }
     };
 
     class TestNotifyHandlerEndToEnd1Wrapper : public INotifyHandler
     {
-        public:
-            TestNotifyHandlerEndToEnd1Wrapper( TestNotifyHandlerEndToEnd1& toWrap )
-            :   INotifyHandler()
-            ,   wrapped( toWrap )
-            {
-            }
+    public:
+        TestNotifyHandlerEndToEnd1Wrapper( TestNotifyHandlerEndToEnd1& toWrap )
+            : INotifyHandler()
+            , wrapped( toWrap )
+        {
+        }
 
-            RequestStatus Process(
-                const NotificationType& notificationType,
-                ZMQMessage* notificationMsg )
-            {
-                return wrapped.Process( notificationType, notificationMsg );
-            }
+        RequestStatus Process(
+            const NotificationType& notificationType,
+            ZMQMessage* notificationMsg )
+        {
+            return wrapped.Process( notificationType, notificationMsg );
+        }
 
-        private:
-            TestNotifyHandlerEndToEnd1& wrapped;
+    private:
+        TestNotifyHandlerEndToEnd1& wrapped;
     };
 
     TEST_F( TestNotifyBroker, TestEndToEnd1 )
@@ -208,14 +208,14 @@ namespace TestLHClusterNS
                 unique_ptr< INotifyHandler >(
                     new TestNotifyHandlerEndToEnd1Wrapper( testHandler ) ) ) );
 
-        vector< pair< NotificationType, int > > notificationCounts {
+        vector< pair< NotificationType, int > > notificationCounts{
             { "n1", 1 },
             { "n2", 2 },
             { "n3", 3 },
             { "n4", 4 }
         };
 
-        vector< pair< NotificationType, pair< RequestId, string > > > notificationsToSend {
+        vector< pair< NotificationType, pair< RequestId, string > > > notificationsToSend{
             { "n1", { 1, "first" } },
             { "n1", { 2, "extra1" } },
             { "n1", { 3, "extra2" } },
@@ -247,7 +247,7 @@ namespace TestLHClusterNS
         //     vector< NotificationType >{ "" },
         //     chrono::milliseconds( 1 ) );
 
-        for( auto it = notificationCounts.cbegin(); it != notificationCounts.cend(); ++it )
+        for ( auto it = notificationCounts.cbegin(); it != notificationCounts.cend(); ++it )
         {
             ZMQMessage* countMsg = zmsg_new();
 
@@ -263,7 +263,7 @@ namespace TestLHClusterNS
 
             ret = notifyPublisher.Publish( it->first, &countMsg );
             EXPECT_EQ( 0, ret ) << "failed to publish count[" << it->first << "]";
-            if( ret != 0)
+            if ( ret != 0 )
             {
                 zmsg_destroy( &countMsg );
             }
@@ -272,7 +272,7 @@ namespace TestLHClusterNS
         }
 
 
-        for( auto it = notificationsToSend.cbegin(); it != notificationsToSend.cend(); ++it )
+        for ( auto it = notificationsToSend.cbegin(); it != notificationsToSend.cend(); ++it )
         {
             ZMQMessage* notificationMsg = zmsg_new();
 
@@ -281,7 +281,7 @@ namespace TestLHClusterNS
 
             ret = notifyPublisher.Publish( it->first, &notificationMsg );
             EXPECT_EQ( 0, ret ) << "failed to publish msg[" << it->first << "]";
-            if( ret != 0)
+            if ( ret != 0 )
             {
                 zmsg_destroy( &notificationMsg );
             }
@@ -297,27 +297,27 @@ namespace TestLHClusterNS
         EXPECT_EQ( 0, testHandler.badMessagesReceived );
         // EXPECT_EQ( 0, testHandler.extraMessagesReceived );
         EXPECT_EQ( notificationCounts.size(), testHandler.expectedNotifications.size() );
-        for( auto it = notificationCounts.cbegin(); it != notificationCounts.cend(); ++it )
+        for ( auto it = notificationCounts.cbegin(); it != notificationCounts.cend(); ++it )
         {
             auto itExpected = testHandler.expectedNotifications.find( it->first );
             auto itNotification = testHandler.notifications.find( it->first );
 
             EXPECT_NE( itExpected, testHandler.expectedNotifications.end() )
                 << "notification count not received, "
-                    "possibly a timing issue - try increasing ms delay[" << it->first << "]";
+                "possibly a timing issue - try increasing ms delay[" << it->first << "]";
             EXPECT_NE( itNotification, testHandler.notifications.end() )
                 << "notification msgs not received["
-                   "possibly a timing issue - try increasing ms delay[" << it->first << "]";
+                "possibly a timing issue - try increasing ms delay[" << it->first << "]";
 
-            if( itExpected != testHandler.expectedNotifications.end() )
+            if ( itExpected != testHandler.expectedNotifications.end() )
             {
                 EXPECT_EQ( it->second, itExpected->second )
                     << "notification count not matching[" << it->first << "]";
             }
 
-            if( itNotification != testHandler.notifications.end() )
+            if ( itNotification != testHandler.notifications.end() )
             {
-                EXPECT_TRUE( it->second <= itNotification->second.size() )
+                EXPECT_TRUE( (size_t)it->second <= itNotification->second.size() )
                     << "notification msg counts not matching[" << it->first << "]";
             }
         }

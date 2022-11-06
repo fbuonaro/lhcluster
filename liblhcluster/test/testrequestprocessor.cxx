@@ -17,16 +17,16 @@ namespace TestLHClusterNS
 
     class TestRequestProcessor : public ::testing::Test
     {
-        protected:
+    protected:
 
-            void SetUp()
-            {
+        void SetUp()
+        {
 
-            }
+        }
 
-            void Tear()
-            {
-            }
+        void Tear()
+        {
+        }
     };
 
     TEST_F( TestRequestProcessor, TestConstructorActivate )
@@ -38,69 +38,69 @@ namespace TestLHClusterNS
         TestZMQSocket* selfMessaging = nullptr;
         TestZMQSocket* selfSecController = nullptr;
         TestZMQSocket* selfPrimController = nullptr;
-        
+
         {
-        std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
-            new TestZMQSocketFactoryProxy( socketFactory ) );
-        std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
-            new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
-        std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
-            new DummyRequestHandler() );
-        DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
-        RequestProcessor dummyRequestProcessor(
-            selfMessagingEndpoint,
-            selfControllerEndpoint,
-            move( lpSocketFactory ),
-            move( lpSenderReceiver ),
-            move( lpDummyRequestHandler ) );
+            std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
+                new TestZMQSocketFactoryProxy( socketFactory ) );
+            std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
+                new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
+            std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
+                new DummyRequestHandler() );
+            // DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
+            RequestProcessor dummyRequestProcessor(
+                selfMessagingEndpoint,
+                selfControllerEndpoint,
+                move( lpSocketFactory ),
+                move( lpSenderReceiver ),
+                move( lpDummyRequestHandler ) );
 
-        ASSERT_EQ( selfMessagingEndpoint,
-                   dummyRequestProcessor.selfMessagingEndpoint );
-        ASSERT_EQ( selfControllerEndpoint,
-                   dummyRequestProcessor.selfControllerEndpoint );
+            ASSERT_EQ( selfMessagingEndpoint,
+                dummyRequestProcessor.selfMessagingEndpoint );
+            ASSERT_EQ( selfControllerEndpoint,
+                dummyRequestProcessor.selfControllerEndpoint );
 
-        selfSecController = (TestZMQSocket*) dummyRequestProcessor.selfSecondarySocket;
-        selfPrimController = (TestZMQSocket*)dummyRequestProcessor.selfPrimarySocket;
-        dummyRequestProcessor.activateControllerSockets();
-        ASSERT_EQ( SocketType::Pair, selfSecController->socketType );
-        ASSERT_EQ( SocketType::Pair, selfPrimController->socketType );
-        ASSERT_FALSE( selfSecController->destroyed );
-        ASSERT_FALSE( selfPrimController->destroyed );
-        ASSERT_EQ( 1, selfSecController->binded.size() );
-        ASSERT_EQ( 0, selfSecController->connected.size() );
-        ASSERT_EQ( 0, selfSecController->unBinded.size() );
-        ASSERT_TRUE( selfSecController->binded.find(
-            selfControllerEndpoint.path() ) != selfSecController->binded.end() );
-        ASSERT_EQ( 1, selfPrimController->connected.size() );
-        ASSERT_EQ( 0, selfPrimController->binded.size() );
-        ASSERT_EQ( 0, selfPrimController->disConnected.size() );
-        ASSERT_TRUE( selfPrimController->connected.find(
-            selfControllerEndpoint.path() ) != selfPrimController->connected.end() );
+            selfSecController = (TestZMQSocket*)dummyRequestProcessor.selfSecondarySocket;
+            selfPrimController = (TestZMQSocket*)dummyRequestProcessor.selfPrimarySocket;
+            dummyRequestProcessor.activateControllerSockets();
+            ASSERT_EQ( SocketType::Pair, selfSecController->socketType );
+            ASSERT_EQ( SocketType::Pair, selfPrimController->socketType );
+            ASSERT_FALSE( selfSecController->destroyed );
+            ASSERT_FALSE( selfPrimController->destroyed );
+            ASSERT_EQ( 1, selfSecController->binded.size() );
+            ASSERT_EQ( 0, selfSecController->connected.size() );
+            ASSERT_EQ( 0, selfSecController->unBinded.size() );
+            ASSERT_TRUE( selfSecController->binded.find(
+                selfControllerEndpoint.path() ) != selfSecController->binded.end() );
+            ASSERT_EQ( 1, selfPrimController->connected.size() );
+            ASSERT_EQ( 0, selfPrimController->binded.size() );
+            ASSERT_EQ( 0, selfPrimController->disConnected.size() );
+            ASSERT_TRUE( selfPrimController->connected.find(
+                selfControllerEndpoint.path() ) != selfPrimController->connected.end() );
 
-        selfMessaging = (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket;
-        dummyRequestProcessor.activateMessagingSockets();
-        ASSERT_EQ( SocketType::Pair, selfMessaging->socketType );
-        ASSERT_FALSE( selfMessaging->destroyed );
-        ASSERT_EQ( 1, selfMessaging->binded.size() );
-        ASSERT_EQ( 0, selfMessaging->connected.size() );
-        ASSERT_EQ( 0, selfMessaging->unBinded.size() );
-        ASSERT_EQ( 0, selfMessaging->disConnected.size() );
-        ASSERT_TRUE( selfMessaging->binded.find(
-            selfMessagingEndpoint.path() ) != selfMessaging->binded.end() );
+            selfMessaging = (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket;
+            dummyRequestProcessor.activateMessagingSockets();
+            ASSERT_EQ( SocketType::Pair, selfMessaging->socketType );
+            ASSERT_FALSE( selfMessaging->destroyed );
+            ASSERT_EQ( 1, selfMessaging->binded.size() );
+            ASSERT_EQ( 0, selfMessaging->connected.size() );
+            ASSERT_EQ( 0, selfMessaging->unBinded.size() );
+            ASSERT_EQ( 0, selfMessaging->disConnected.size() );
+            ASSERT_TRUE( selfMessaging->binded.find(
+                selfMessagingEndpoint.path() ) != selfMessaging->binded.end() );
 
-        // called when startAs... exits
-        dummyRequestProcessor.deactivateMessagingSockets();
-        ASSERT_TRUE( selfMessaging->destroyed );
-        // should be refreshed
-        ASSERT_FALSE( selfMessaging ==
-            (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket);
-        ASSERT_EQ( 1, selfMessaging->binded.size() );
-        ASSERT_EQ( 0, selfMessaging->connected.size() );
-        ASSERT_EQ( 1, selfMessaging->unBinded.size() );
-        ASSERT_EQ( 0, selfMessaging->disConnected.size() );
-        ASSERT_TRUE( selfMessaging->unBinded.find(
-            selfMessagingEndpoint.path() ) != selfMessaging->unBinded.end() );
-        selfMessaging = (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket;
+            // called when startAs... exits
+            dummyRequestProcessor.deactivateMessagingSockets();
+            ASSERT_TRUE( selfMessaging->destroyed );
+            // should be refreshed
+            ASSERT_FALSE( selfMessaging ==
+                (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket );
+            ASSERT_EQ( 1, selfMessaging->binded.size() );
+            ASSERT_EQ( 0, selfMessaging->connected.size() );
+            ASSERT_EQ( 1, selfMessaging->unBinded.size() );
+            ASSERT_EQ( 0, selfMessaging->disConnected.size() );
+            ASSERT_TRUE( selfMessaging->unBinded.find(
+                selfMessagingEndpoint.path() ) != selfMessaging->unBinded.end() );
+            selfMessaging = (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket;
         }
 
         ASSERT_TRUE( selfSecController->destroyed );
@@ -180,127 +180,127 @@ namespace TestLHClusterNS
             853,
             0
         };
-        
+
         {
-        std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
-            new TestZMQSocketFactoryProxy( socketFactory ) );
-        std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
-            new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
-        std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
-            new DummyRequestHandler() );
-        DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
-        RequestProcessor dummyRequestProcessor(
-            selfMessagingEndpoint,
-            selfControllerEndpoint,
-            move( lpSocketFactory ),
-            move( lpSenderReceiver ),
-            move( lpDummyRequestHandler ) );
-        int ret = 0;
-        ZMQMessage* nullFrameMessage = nullptr;
+            std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
+                new TestZMQSocketFactoryProxy( socketFactory ) );
+            std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
+                new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
+            std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
+                new DummyRequestHandler() );
+            DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
+            RequestProcessor dummyRequestProcessor(
+                selfMessagingEndpoint,
+                selfControllerEndpoint,
+                move( lpSocketFactory ),
+                move( lpSenderReceiver ),
+                move( lpDummyRequestHandler ) );
+            int ret = 0;
+            ZMQMessage* nullFrameMessage = nullptr;
 
-        nullFrameMessage = zmsg_new();
-        zmsg_pushmem( nullFrameMessage, nullptr, 0 );
+            nullFrameMessage = zmsg_new();
+            zmsg_pushmem( nullFrameMessage, nullptr, 0 );
 
-        // return empty msg, nullmsg, big message
-        dummyRequestHandler->processRetValues = {
-            { RequestStatus::Succeeded,
-              nullFrameMessage },
-            { RequestStatus::Failed,
-              zmsg_new() },
-            { RequestStatus::Succeeded,
-              zmsg_dup( goodMessagePlus ) }
-        };
+            // return empty msg, nullmsg, big message
+            dummyRequestHandler->processRetValues = {
+                { RequestStatus::Succeeded,
+                  nullFrameMessage },
+                { RequestStatus::Failed,
+                  zmsg_new() },
+                { RequestStatus::Succeeded,
+                  zmsg_dup( goodMessagePlus ) }
+            };
 
-        // fail to receive
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 1, ret );
-        ASSERT_EQ( 1, senderReceiver.receiveCount );
-        ASSERT_EQ( 0, senderReceiver.sendCount );
+            // fail to receive
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 1, ret );
+            ASSERT_EQ( 1, senderReceiver.receiveCount );
+            ASSERT_EQ( 0, senderReceiver.sendCount );
 
-        // fail to send
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 2, senderReceiver.receiveCount );
-        ASSERT_EQ( 1, senderReceiver.sendCount );
-        ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
+            // fail to send
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 2, senderReceiver.receiveCount );
+            ASSERT_EQ( 1, senderReceiver.sendCount );
+            ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
 
-        // fail to parse request type
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 3, senderReceiver.receiveCount );
-        ASSERT_EQ( 1, senderReceiver.sendCount );
-        ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
+            // fail to parse request type
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 3, senderReceiver.receiveCount );
+            ASSERT_EQ( 1, senderReceiver.sendCount );
+            ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
 
-        // fail to parse reques id
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 4, senderReceiver.receiveCount );
-        ASSERT_EQ( 1, senderReceiver.sendCount );
-        ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
+            // fail to parse reques id
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 4, senderReceiver.receiveCount );
+            ASSERT_EQ( 1, senderReceiver.sendCount );
+            ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 1, dummyRequestHandler->numRequestsProcessed );
 
-        // good message, i think this will crash if the response msg is null
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 5, senderReceiver.receiveCount );
-        ASSERT_EQ( 2, senderReceiver.sendCount );
-        ASSERT_EQ( 2, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 2, dummyRequestHandler->numRequestsProcessed );
-        ASSERT_EQ( 4,
-                   zmsg_size(
-                       senderReceiver.sentMessages[ 1 ].second ) );
-        ASSERT_EQ( (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket,
-                   senderReceiver.sentMessages[ 1 ].first );
-        ASSERT_EQ( vfs2,
-                   frameHandler.get_frame_value< LHCVersionFlags >(
-                       zmsg_first( senderReceiver.sentMessages[ 1 ].second ) ) );
-        ASSERT_EQ( requestType2,
-                   frameHandler.get_frame_value< RequestType >(
-                       zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
-        ASSERT_EQ( requestId2,
-                   frameHandler.get_frame_value< RequestId >(
-                       zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
-        ASSERT_EQ( RequestStatus::Failed,
-                   frameHandler.get_frame_value< RequestStatus >(
-                       zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
+            // good message, i think this will crash if the response msg is null
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 5, senderReceiver.receiveCount );
+            ASSERT_EQ( 2, senderReceiver.sendCount );
+            ASSERT_EQ( 2, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 2, dummyRequestHandler->numRequestsProcessed );
+            ASSERT_EQ( 4,
+                zmsg_size(
+                    senderReceiver.sentMessages[ 1 ].second ) );
+            ASSERT_EQ( (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket,
+                senderReceiver.sentMessages[ 1 ].first );
+            ASSERT_EQ( vfs2,
+                frameHandler.get_frame_value< LHCVersionFlags >(
+                    zmsg_first( senderReceiver.sentMessages[ 1 ].second ) ) );
+            ASSERT_EQ( requestType2,
+                frameHandler.get_frame_value< RequestType >(
+                    zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
+            ASSERT_EQ( requestId2,
+                frameHandler.get_frame_value< RequestId >(
+                    zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
+            ASSERT_EQ( RequestStatus::Failed,
+                frameHandler.get_frame_value< RequestStatus >(
+                    zmsg_next( senderReceiver.sentMessages[ 1 ].second ) ) );
 
-        // good message with data
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 6, senderReceiver.receiveCount );
-        ASSERT_EQ( 3, senderReceiver.sendCount );
-        ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 3, dummyRequestHandler->numRequestsProcessed );
-        ASSERT_EQ( 4 + zmsg_size( goodMessagePlus ),
-                   zmsg_size(
-                       senderReceiver.sentMessages[ 2 ].second ) );
-        ASSERT_EQ( (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket,
-                   senderReceiver.sentMessages[ 2 ].first );
-        ASSERT_EQ( vfs3,
-                   frameHandler.get_frame_value< LHCVersionFlags >(
-                       zmsg_first( senderReceiver.sentMessages[ 2 ].second ) ) );
-        ASSERT_EQ( requestType3,
-                   frameHandler.get_frame_value< RequestType >(
-                       zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
-        ASSERT_EQ( requestId3,
-                   frameHandler.get_frame_value< RequestId >(
-                       zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
-        ASSERT_EQ( RequestStatus::Succeeded,
-                   frameHandler.get_frame_value< RequestStatus >(
-                       zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
-        ASSERT_EQ( "data",
-                   frameHandler.get_frame_value< string >(
-                       zmsg_last( senderReceiver.sentMessages[ 2 ].second ) ) );
+            // good message with data
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 6, senderReceiver.receiveCount );
+            ASSERT_EQ( 3, senderReceiver.sendCount );
+            ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 3, dummyRequestHandler->numRequestsProcessed );
+            ASSERT_EQ( 4 + zmsg_size( goodMessagePlus ),
+                zmsg_size(
+                    senderReceiver.sentMessages[ 2 ].second ) );
+            ASSERT_EQ( (TestZMQSocket*)dummyRequestProcessor.selfMessagingSocket,
+                senderReceiver.sentMessages[ 2 ].first );
+            ASSERT_EQ( vfs3,
+                frameHandler.get_frame_value< LHCVersionFlags >(
+                    zmsg_first( senderReceiver.sentMessages[ 2 ].second ) ) );
+            ASSERT_EQ( requestType3,
+                frameHandler.get_frame_value< RequestType >(
+                    zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
+            ASSERT_EQ( requestId3,
+                frameHandler.get_frame_value< RequestId >(
+                    zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
+            ASSERT_EQ( RequestStatus::Succeeded,
+                frameHandler.get_frame_value< RequestStatus >(
+                    zmsg_next( senderReceiver.sentMessages[ 2 ].second ) ) );
+            ASSERT_EQ( "data",
+                frameHandler.get_frame_value< string >(
+                    zmsg_last( senderReceiver.sentMessages[ 2 ].second ) ) );
 
-        // missing vfs
-        ret = dummyRequestProcessor.handleRequest();
-        ASSERT_EQ( 0, ret );
-        ASSERT_EQ( 7, senderReceiver.receiveCount );
-        ASSERT_EQ( 3, senderReceiver.sendCount );
-        ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
-        ASSERT_EQ( 3, dummyRequestHandler->numRequestsProcessed );
+            // missing vfs
+            ret = dummyRequestProcessor.handleRequest();
+            ASSERT_EQ( 0, ret );
+            ASSERT_EQ( 7, senderReceiver.receiveCount );
+            ASSERT_EQ( 3, senderReceiver.sendCount );
+            ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
+            ASSERT_EQ( 3, dummyRequestHandler->numRequestsProcessed );
         }
     }
 }

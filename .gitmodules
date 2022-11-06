@@ -1,0 +1,4 @@
+[submodule "modules/lhscriptutil"]
+	path = modules/lhscriptutil
+	url = https://github.com/fbuonaro/lhscriptutil.git
+	branch = release/v/1.0.0

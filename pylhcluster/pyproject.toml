@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "pylhcluster"
+version = "1.0.0"
+description = "python wrapper around liblhcluster through libpylhclusterext"
+authors = ["Frank Buonarota <fbuonaro@gmail.com>"]
+readme = "README.md"
+include = [ "pylhcluster/plhc_ext/*.so", "pylhcluster/plhc_api/logging_config_templates/*.ini" ]
+repository = "https://github.com/fbuonaro/lhcluster/pylhcluster"
+license = "MIT"
+packages = [
+    { include = "pylhcluster" },
+    { include = "pylhcluster_test" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+mypy-extensions = "^0.4.3"
+pytest = "^7.0.1"
+pytest-mypy = "^0.10.0"
+
+[tool.poetry.extras]
+test = ["pytest"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

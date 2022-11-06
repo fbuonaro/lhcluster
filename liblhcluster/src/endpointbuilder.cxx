@@ -6,24 +6,24 @@ namespace LHClusterNS
     {
         const char* endpointTypeSuffix( EndpointType endpointType )
         {
-            switch( endpointType )
+            switch ( endpointType )
             {
-                case EndpointType::InterThread:
-                    return ".zitc";
-                case EndpointType::InterProcess:
-                    return ".zipc";
-                default:
-                    return "";
+            case EndpointType::InterThread:
+            return ".zitc";
+            case EndpointType::InterProcess:
+            return ".zipc";
+            default:
+            return "";
             }
         }
     }
 
     EndpointBuilder::EndpointBuilder()
-    :   endpointType( EndpointType::None )
-    ,   baseAddress()
-    ,   port( 0 )
-    ,   endpoint()
-    ,   hasComponents( true )
+        : endpointType( EndpointType::None )
+        , baseAddress()
+        , port( 0 )
+        , endpoint()
+        , hasComponents( true )
     {
     }
 
@@ -33,29 +33,29 @@ namespace LHClusterNS
 
     bool EndpointBuilder::OK() const
     {
-        if( hasComponents )
+        if ( hasComponents )
         {
-            switch( endpointType )
+            switch ( endpointType )
             {
-                case EndpointType::TCP:
-                {
-                    if( port <= 0 )
-                        throw ClusterParametersBuildFailed( "invalid port" );
-                }
-                break;
-                case EndpointType::InterThread:
-                case EndpointType::InterProcess:
-                {
-                }
-                break;
-                default:
-                {
-                    throw ClusterParametersBuildFailed( "invalid endpoint type" );
-                }
-                break;
+            case EndpointType::TCP:
+            {
+                if ( port <= 0 )
+                    throw ClusterParametersBuildFailed( "invalid port" );
+            }
+            break;
+            case EndpointType::InterThread:
+            case EndpointType::InterProcess:
+            {
+            }
+            break;
+            default:
+            {
+                throw ClusterParametersBuildFailed( "invalid endpoint type" );
+            }
+            break;
             }
 
-            if( baseAddress.size() <= 0 )
+            if ( baseAddress.size() <= 0 )
                 throw ClusterParametersBuildFailed( "invalid endpoint address" );
         }
         // else whatever is passed in should be okay, up to caller
@@ -65,7 +65,7 @@ namespace LHClusterNS
 
     Endpoint EndpointBuilder::Build( std::ostringstream& oss ) const
     {
-        if( hasComponents )
+        if ( hasComponents )
             return Build( oss, GetInstance(), GetProcess(), GetThread() );
         else
             return endpoint;
@@ -85,23 +85,27 @@ namespace LHClusterNS
         oss.str( std::string() );
 
         oss << baseAddress;
-        switch( endpointType )
+        switch ( endpointType )
         {
-            case EndpointType::TCP:
-            {
-                oss << ":" << port;
-            }
+        case EndpointType::TCP:
+        {
+            oss << ":" << port;
             break;
-            case EndpointType::InterThread:
-            case EndpointType::InterProcess:
-            {
-                if( _instance && _process && _thread )
-                    oss << "_" << _instance
-                        << "_" << _process
-                        << "_" << _thread;
-                oss << endpointTypeSuffix( endpointType );
-            }
+        }
+        case EndpointType::InterThread:
+        case EndpointType::InterProcess:
+        {
+            if ( _instance && _process && _thread )
+                oss << "_" << _instance
+                << "_" << _process
+                << "_" << _thread;
+            oss << endpointTypeSuffix( endpointType );
             break;
+        }
+        default:
+        {
+            break;
+        }
         }
 
         return Endpoint( endpointType, oss.str().c_str() );

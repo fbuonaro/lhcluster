@@ -31,10 +31,10 @@ namespace TestLHClusterNS
         auto it2 = worker.requestContexts.find(
             pair< RequestType, RequestId >( requestType, requestId ) );
 
-        if( hasRTContext )
+        if ( hasRTContext )
         {
             ASSERT_TRUE( it != worker.requestTypeContexts.end() ) << "failed at " << lineNumber;
-            if( isInProgress )
+            if ( isInProgress )
             {
                 ASSERT_TRUE(
                     it->second.GetInProgressRequests().find( requestId ) !=
@@ -52,7 +52,7 @@ namespace TestLHClusterNS
             ASSERT_TRUE( it == worker.requestTypeContexts.end() ) << "failed at " << lineNumber;
         }
 
-        if( hasRContext )
+        if ( hasRContext )
         {
             ASSERT_TRUE( it2 != worker.requestContexts.end() ) << "failed at " << lineNumber;
         }
@@ -81,9 +81,9 @@ namespace TestLHClusterNS
     {
         auto it = worker.requestTypeContexts.find( requestType );
         ASSERT_TRUE( it != worker.requestTypeContexts.end() );
-        ASSERT_TRUE(  requestType == it->second.GetRequestType() );
+        ASSERT_TRUE( requestType == it->second.GetRequestType() );
         ASSERT_TRUE( numInProgressRequests ==
-                     it->second.GetInProgressRequests().size() );
+            it->second.GetInProgressRequests().size() );
     }
 
     void checkRequestTypeContext(
@@ -94,10 +94,10 @@ namespace TestLHClusterNS
     }
 
     unique_ptr< Worker >
-    createWorker(
-        TestZMQSocketFactory& socketFactory,
-        TestZMQSocketSenderReceiver& senderReceiver,
-        const vector< RequestType >& supportedRequestTypes )
+        createWorker(
+            TestZMQSocketFactory& socketFactory,
+            TestZMQSocketSenderReceiver& senderReceiver,
+            const vector< RequestType >& supportedRequestTypes )
     {
         Endpoint brokerMessagingEndpoint( EndpointType::TCP, "brokerMessaging" );
         Endpoint selfMessagingEndpoint( EndpointType::TCP, "selfMessaging" );
@@ -159,11 +159,11 @@ namespace TestLHClusterNS
             std::unique_ptr< Worker > worker(
                 createWorker( socketFactory, senderReceiver, {} ) );
         }
-        catch( const WorkerConstructionFailed& e )
+        catch ( const WorkerConstructionFailed& e )
         {
             thrown = true;
         }
-        catch( ... )
+        catch ( ... )
         {
             ASSERT_TRUE( false ) << "unexpected constructor exception";
         }
@@ -171,93 +171,93 @@ namespace TestLHClusterNS
         ASSERT_TRUE( thrown ) << "no exception thrown for no request types";
 
         {
-        std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
-            new TestZMQSocketFactoryProxy( socketFactory ) );
-        std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
-            new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
-        Endpoint rpMessagingEndpoint( EndpointType::TCP, "rpMessaging" );
-        Endpoint rpControllerEndpoint( EndpointType::TCP, "rpController" );
-        std::unique_ptr< IZMQSocketFactory > lpRPSocketFactory(
-            new TestZMQSocketFactoryProxy( socketFactory ) );
-        std::unique_ptr< IZMQSocketSenderReceiver > lpRPSenderReceiver(
-            new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
-        std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
-            new DummyRequestHandler() );
-        DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
-        dummyRequestHandler->supportedRequestTypes = { 1,2,3,4,5 };
-        Worker worker(
-            selfMessagingEndpoint,
-            brokerMessagingEndpoint,
-            selfControllerEndpoint,
-            selfHeartbeatDelay,
-            initBrokerHeartbeatDelay,
-            brokerPulseDelay,
-            move( lpSocketFactory ),
-            move( lpSenderReceiver ),
-            rpMessagingEndpoint,
-            rpControllerEndpoint,
-            move( lpDummyRequestHandler ),
-            move( lpRPSocketFactory ),
-            move( lpRPSenderReceiver ) );
+            std::unique_ptr< IZMQSocketFactory > lpSocketFactory(
+                new TestZMQSocketFactoryProxy( socketFactory ) );
+            std::unique_ptr< IZMQSocketSenderReceiver > lpSenderReceiver(
+                new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
+            Endpoint rpMessagingEndpoint( EndpointType::TCP, "rpMessaging" );
+            Endpoint rpControllerEndpoint( EndpointType::TCP, "rpController" );
+            std::unique_ptr< IZMQSocketFactory > lpRPSocketFactory(
+                new TestZMQSocketFactoryProxy( socketFactory ) );
+            std::unique_ptr< IZMQSocketSenderReceiver > lpRPSenderReceiver(
+                new TestZMQSocketSenderReceiverProxy( senderReceiver ) );
+            std::unique_ptr< DummyRequestHandler > lpDummyRequestHandler(
+                new DummyRequestHandler() );
+            DummyRequestHandler* dummyRequestHandler = lpDummyRequestHandler.get();
+            dummyRequestHandler->supportedRequestTypes = { 1,2,3,4,5 };
+            Worker worker(
+                selfMessagingEndpoint,
+                brokerMessagingEndpoint,
+                selfControllerEndpoint,
+                selfHeartbeatDelay,
+                initBrokerHeartbeatDelay,
+                brokerPulseDelay,
+                move( lpSocketFactory ),
+                move( lpSenderReceiver ),
+                rpMessagingEndpoint,
+                rpControllerEndpoint,
+                move( lpDummyRequestHandler ),
+                move( lpRPSocketFactory ),
+                move( lpRPSenderReceiver ) );
 
-        messagingSocket = (TestZMQSocket*) worker.messagingSocket;
-        listenerSocket = (TestZMQSocket*) worker.listenerSocket;
-        signalerSocket = (TestZMQSocket*) worker.signalerSocket;
+            messagingSocket = (TestZMQSocket*)worker.messagingSocket;
+            listenerSocket = (TestZMQSocket*)worker.listenerSocket;
+            signalerSocket = (TestZMQSocket*)worker.signalerSocket;
 
-        ASSERT_EQ( initBrokerHeartbeatDelay,
-                   worker.brokerHeartbeatDelay );
-        ASSERT_EQ( selfHeartbeatDelay, worker.selfHeartbeatDelay );
-        ASSERT_EQ( brokerPulseDelay, worker.brokerPulseDelay );
-        ASSERT_EQ( expectedBrokerDeathDelay, worker.brokerDeathDelay );
+            ASSERT_EQ( initBrokerHeartbeatDelay,
+                worker.brokerHeartbeatDelay );
+            ASSERT_EQ( selfHeartbeatDelay, worker.selfHeartbeatDelay );
+            ASSERT_EQ( brokerPulseDelay, worker.brokerPulseDelay );
+            ASSERT_EQ( expectedBrokerDeathDelay, worker.brokerDeathDelay );
 
-        worker.activateControllerSockets();
-        ASSERT_EQ( 1, listenerSocket->binded.size() );
-        ASSERT_EQ( 0, listenerSocket->connected.size() );
-        ASSERT_TRUE(
-            listenerSocket->binded.find(
-                selfControllerEndpoint.path() ) !=
-            listenerSocket->binded.end() );
-        ASSERT_EQ( 0, signalerSocket->binded.size() );
-        ASSERT_EQ( 1, signalerSocket->connected.size() );
-        ASSERT_TRUE(
-            signalerSocket->connected.find(
-                selfControllerEndpoint.path() ) !=
-            signalerSocket->connected.end() );
+            worker.activateControllerSockets();
+            ASSERT_EQ( 1, listenerSocket->binded.size() );
+            ASSERT_EQ( 0, listenerSocket->connected.size() );
+            ASSERT_TRUE(
+                listenerSocket->binded.find(
+                    selfControllerEndpoint.path() ) !=
+                listenerSocket->binded.end() );
+            ASSERT_EQ( 0, signalerSocket->binded.size() );
+            ASSERT_EQ( 1, signalerSocket->connected.size() );
+            ASSERT_TRUE(
+                signalerSocket->connected.find(
+                    selfControllerEndpoint.path() ) !=
+                signalerSocket->connected.end() );
 
-        worker.activateMessagingSockets();
-        ASSERT_EQ( 1, messagingSocket->binded.size() );
-        ASSERT_EQ( 1, messagingSocket->connected.size() );
-        ASSERT_TRUE(
-            messagingSocket->binded.find(
-                selfMessagingEndpoint.path() ) !=
-            messagingSocket->binded.end() );
-        ASSERT_TRUE(
-            messagingSocket->connected.find(
-                brokerMessagingEndpoint.path() ) !=
-            messagingSocket->connected.end() );
- 
-        worker.deactivateMessagingSockets();
-        ASSERT_FALSE( messagingSocket->destroyed );
-        ASSERT_EQ( 1, messagingSocket->unBinded.size() );
-        ASSERT_EQ( 1, messagingSocket->disConnected.size() );
-        ASSERT_EQ( 1, messagingSocket->binded.size() );
-        ASSERT_EQ( 1, messagingSocket->connected.size() );
-        ASSERT_TRUE(
-            messagingSocket->unBinded.find(
-                selfMessagingEndpoint.path() ) !=
-            messagingSocket->unBinded.end() );
-        ASSERT_TRUE(
-            messagingSocket->disConnected.find(
-                brokerMessagingEndpoint.path() ) !=
-            messagingSocket->disConnected.end() );
+            worker.activateMessagingSockets();
+            ASSERT_EQ( 1, messagingSocket->binded.size() );
+            ASSERT_EQ( 1, messagingSocket->connected.size() );
+            ASSERT_TRUE(
+                messagingSocket->binded.find(
+                    selfMessagingEndpoint.path() ) !=
+                messagingSocket->binded.end() );
+            ASSERT_TRUE(
+                messagingSocket->connected.find(
+                    brokerMessagingEndpoint.path() ) !=
+                messagingSocket->connected.end() );
 
-        ASSERT_EQ( 5, worker.requestTypeContexts.size() );
+            worker.deactivateMessagingSockets();
+            ASSERT_FALSE( messagingSocket->destroyed );
+            ASSERT_EQ( 1, messagingSocket->unBinded.size() );
+            ASSERT_EQ( 1, messagingSocket->disConnected.size() );
+            ASSERT_EQ( 1, messagingSocket->binded.size() );
+            ASSERT_EQ( 1, messagingSocket->connected.size() );
+            ASSERT_TRUE(
+                messagingSocket->unBinded.find(
+                    selfMessagingEndpoint.path() ) !=
+                messagingSocket->unBinded.end() );
+            ASSERT_TRUE(
+                messagingSocket->disConnected.find(
+                    brokerMessagingEndpoint.path() ) !=
+                messagingSocket->disConnected.end() );
 
-        ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 1 ) );
-        ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 2 ) );
-        ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 3 ) );
-        ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 4 ) );
-        ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 5 ) );
+            ASSERT_EQ( 5, worker.requestTypeContexts.size() );
+
+            ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 1 ) );
+            ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 2 ) );
+            ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 3 ) );
+            ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 4 ) );
+            ASSERT_NO_FATAL_FAILURE( checkRequestTypeContext( worker, 5 ) );
         }
 
         ASSERT_TRUE( messagingSocket->destroyed );
@@ -291,8 +291,8 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {3,53,853,9853,1}));
-        
+            createWorker( socketFactory, senderReceiver, { 3,53,853,9853,1 } ) );
+
         worker->addNewInProgressRequest( 3, 555 );
         worker->addNewInProgressRequest( 3, 556 );
         worker->addNewInProgressRequest( 3, 557 );
@@ -324,14 +324,14 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkRequestTypeContextInProgress( *worker, 853, 1000 ) );
         ASSERT_NO_FATAL_FAILURE( checkRequestTypeContextInProgress( *worker, 9853, 9000 ) );
         ASSERT_NO_FATAL_FAILURE( checkRequestTypeContextInProgress( *worker, 1, 1 ) );
-     }
+    }
 
     TEST_F( TestWorker, TestIsBrokerAliveAsOf )
     {
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {3}));
+            createWorker( socketFactory, senderReceiver, { 3 } ) );
 
         worker->brokerLastActive = 10;
         worker->brokerDeathDelay = Delay( 26 );
@@ -358,7 +358,7 @@ namespace TestLHClusterNS
         ASSERT_EQ( requestId, it->second.GetRequestId() );
         ASSERT_EQ( vfs, it->second.GetVersionMessageFlags() );
         ASSERT_EQ( envelope.size(), it->second.GetEnvelope().size() );
-        for( auto it2 = envelope.begin(); it2 != envelope.end(); ++it2 )
+        for ( auto it2 = envelope.begin(); it2 != envelope.end(); ++it2 )
         {
             ASSERT_TRUE(
                 zframe_eq(
@@ -373,18 +373,18 @@ namespace TestLHClusterNS
         ZMQFrameHandler frameHandler;
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
-        vector< int > ints{ 1, 2, 3, 4, 5, 6};
+        vector< int > ints{ 1, 2, 3, 4, 5, 6 };
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {3}));
+            createWorker( socketFactory, senderReceiver, { 3 } ) );
         vector< ZMQFrame* > env1{
             zframe_new( ints.data(), sizeof( int ) ) };
         vector< ZMQFrame* > env2{
-            zframe_new( ints.data()+1, sizeof( int ) ),
-            zframe_new( ints.data()+2, sizeof( int ) ) };
+            zframe_new( ints.data() + 1, sizeof( int ) ),
+            zframe_new( ints.data() + 2, sizeof( int ) ) };
         vector< ZMQFrame* > env3{
-            zframe_new( ints.data()+3, sizeof( int ) ),
-            zframe_new( ints.data()+4, sizeof( int ) ),
-            zframe_new( ints.data()+5, sizeof( int ) ) };
+            zframe_new( ints.data() + 3, sizeof( int ) ),
+            zframe_new( ints.data() + 4, sizeof( int ) ),
+            zframe_new( ints.data() + 5, sizeof( int ) ) };
         ClientRequestContext crtc1(
             1, 1, MessageFlag::None,
             zmqFrameVectorCopy( env3 ) );
@@ -450,7 +450,7 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {3}));
+            createWorker( socketFactory, senderReceiver, { 3 } ) );
         // Defaults from createWorker
         // Delay selfHeartbeatDelay( 30 );
         // Delay initBrokerHeartbeatDelay( 60 );
@@ -464,7 +464,7 @@ namespace TestLHClusterNS
         ASSERT_FALSE( worker->heartbeatNeededAsOf( 19 ) );
         ASSERT_FALSE( worker->heartbeatNeededAsOf( 1 ) );
         ASSERT_FALSE( worker->heartbeatNeededAsOf( 69 ) );
-  
+
     }
 
     TEST_F( TestWorker, TestSendBrokerReadyMessage )
@@ -476,19 +476,19 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory2;
         TestZMQSocketSenderReceiver senderReceiver2;
         unique_ptr< Worker > worker1(
-            createWorker( socketFactory1, senderReceiver1, {10000}));
+            createWorker( socketFactory1, senderReceiver1, { 10000 } ) );
         unique_ptr< Worker > worker2(
-            createWorker( socketFactory2, senderReceiver2, {10, 200, 3000}));
+            createWorker( socketFactory2, senderReceiver2, { 10, 200, 3000 } ) );
         LHCVersionFlags vfs;
- 
-        // A Broker Ready message consists of 
+
+        // A Broker Ready message consists of
         //  1.  null frame
         //  2.  type ready
         //  3.  unsigned int free capacitty
         //  4.  heartbeat delay
         //  5.  one or more request types
 
-        // It will 
+        // It will
         //  1.   update last active on send success
         //  2.  on send success, increment readiessent
         //  3.  on send fail, increment readiessentfailed
@@ -497,7 +497,7 @@ namespace TestLHClusterNS
         //  0.  send fails - fail stats inc'd, no update last active
         //  1.  Send with one supported rtpe - succ stats incd and update last active
         //  2.  Send with four supported rtpes - succ stats incd  and update last active
-        //  3.  Send with four supported request types 
+        //  3.  Send with four supported request types
         //      with some requests in progress - succ stats incd and update last active
 
         worker1->currentTime = 3;
@@ -511,8 +511,8 @@ namespace TestLHClusterNS
         STATS_ASSERT_EQ( 1, worker1->stats[ WorkerStat::ReadiesSentFailed ] );
         ASSERT_EQ( 1, senderReceiver1.sendCount );
         ASSERT_EQ( nullptr, senderReceiver1.sentMessages[ 0 ].second );
-        ASSERT_EQ( ( TestZMQSocket* ) worker1->messagingSocket,
-                   senderReceiver1.sentMessages[ 0 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker1->messagingSocket,
+            senderReceiver1.sentMessages[ 0 ].first );
 
         ret = worker1->sendBrokerReadyMessage();
         ASSERT_EQ( 0, ret );
@@ -523,8 +523,8 @@ namespace TestLHClusterNS
         ASSERT_EQ( 2, senderReceiver1.sendCount );
         ASSERT_FALSE( nullptr == senderReceiver1.sentMessages[ 1 ].second );
         ASSERT_EQ( 6, zmsg_size( senderReceiver1.sentMessages[ 1 ].second ) );
-        ASSERT_EQ( ( TestZMQSocket* ) worker1->messagingSocket,
-                   senderReceiver1.sentMessages[ 1 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker1->messagingSocket,
+            senderReceiver1.sentMessages[ 1 ].first );
         ASSERT_EQ(
             0,
             zframe_size( zmsg_first( senderReceiver1.sentMessages[ 1 ].second ) ) );
@@ -560,8 +560,8 @@ namespace TestLHClusterNS
         ASSERT_FALSE( nullptr == senderReceiver2.sentMessages[ 0 ].second );
         // 10,200,3000
         ASSERT_EQ( 8, zmsg_size( senderReceiver2.sentMessages[ 0 ].second ) );
-        ASSERT_EQ( ( TestZMQSocket* ) worker2->messagingSocket,
-                   senderReceiver2.sentMessages[ 0 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker2->messagingSocket,
+            senderReceiver2.sentMessages[ 0 ].first );
         ASSERT_EQ(
             0,
             zframe_size( zmsg_first( senderReceiver2.sentMessages[ 0 ].second ) ) );
@@ -606,8 +606,8 @@ namespace TestLHClusterNS
         ASSERT_FALSE( nullptr == senderReceiver2.sentMessages[ 1 ].second );
         // 10,200,3000
         ASSERT_EQ( 8, zmsg_size( senderReceiver2.sentMessages[ 1 ].second ) );
-        ASSERT_EQ( ( TestZMQSocket* ) worker2->messagingSocket,
-                   senderReceiver2.sentMessages[ 1 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker2->messagingSocket,
+            senderReceiver2.sentMessages[ 1 ].first );
         ASSERT_EQ(
             0,
             zframe_size( zmsg_first( senderReceiver2.sentMessages[ 1 ].second ) ) );
@@ -648,8 +648,8 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory1;
         TestZMQSocketSenderReceiver senderReceiver1;
         unique_ptr< Worker > worker1(
-            createWorker( socketFactory1, senderReceiver1, {10000}));
- 
+            createWorker( socketFactory1, senderReceiver1, { 10000 } ) );
+
         // should always return 0
         // do nothing if heartbeat not needed as of current time
         // populate a heartbeat message as per SendHeartbeat
@@ -661,10 +661,10 @@ namespace TestLHClusterNS
         // On fail - ++WorkerStat::BrokerHeartbeatsSentFailed
 
         // three cases
-        // 1.   heartbeat not needed (last active+broker hb delay > current time) 
+        // 1.   heartbeat not needed (last active+broker hb delay > current time)
         //      -> nothing sent
         // 2.   send failed - inc stat
-        // 3.   send successful - formatted as expected  
+        // 3.   send successful - formatted as expected
 
         senderReceiver1.sendReturnValues = { 1, 0 };
 
@@ -684,16 +684,16 @@ namespace TestLHClusterNS
         STATS_ASSERT_EQ( 0, worker1->stats[ WorkerStat::BrokerHeartbeatsSent ] );
         STATS_ASSERT_EQ( 1, worker1->stats[ WorkerStat::BrokerHeartbeatsSentFailed ] );
         ASSERT_EQ( 1, senderReceiver1.sendCount );
-        ASSERT_EQ( ( TestZMQSocket* ) worker1->messagingSocket,
-                   senderReceiver1.sentMessages[ 0 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker1->messagingSocket,
+            senderReceiver1.sentMessages[ 0 ].first );
 
-       ret = worker1->sendBrokerHeartbeat();
+        ret = worker1->sendBrokerHeartbeat();
         ASSERT_EQ( 0, ret );
         STATS_ASSERT_EQ( 1, worker1->stats[ WorkerStat::BrokerHeartbeatsSent ] );
         STATS_ASSERT_EQ( 1, worker1->stats[ WorkerStat::BrokerHeartbeatsSentFailed ] );
         ASSERT_EQ( 2, senderReceiver1.sendCount );
-        ASSERT_EQ( ( TestZMQSocket* ) worker1->messagingSocket,
-                   senderReceiver1.sentMessages[ 1 ].first );
+        ASSERT_EQ( (TestZMQSocket*)worker1->messagingSocket,
+            senderReceiver1.sentMessages[ 1 ].first );
         ASSERT_FALSE( nullptr == senderReceiver1.sentMessages[ 1 ].second );
         ASSERT_EQ( 4, zmsg_size( senderReceiver1.sentMessages[ 1 ].second ) );
         ASSERT_EQ(
@@ -727,12 +727,12 @@ namespace TestLHClusterNS
 
     //New request format
     //  3.  one or more client envelopes
-    //  4.  null frame 
+    //  4.  null frame
     //  5.  LHCVersionFlags
-    //  5.  RequestType 
+    //  5.  RequestType
     //  6.  RequestId
     //  8.  zero or more data framees
-    
+
     void checkForwardedRequest(
         ZMQFrameHandler& frameHandler,
         ZMQMessage* forwardedMsg,
@@ -766,7 +766,7 @@ namespace TestLHClusterNS
         msgRequestId = frameHandler.get_frame_value< RequestId >( frame );
         ASSERT_EQ( requestId, msgRequestId );
 
-        for( auto it = dataFrames.begin(); it != dataFrames.end(); ++it )
+        for ( auto it = dataFrames.begin(); it != dataFrames.end(); ++it )
         {
             string data;
             frame = zmsg_next( forwardedMsg );
@@ -787,7 +787,7 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {10000}));
+            createWorker( socketFactory, senderReceiver, { 10000 } ) );
         vector< const char* > empty;
         std::time_t sentAt1 = 1;
         std::time_t sentAt2 = 20;
@@ -841,7 +841,7 @@ namespace TestLHClusterNS
             frameHandler,
             empty,
             true,
-            ( ClusterMessage* ) &badBrokerMessage,
+            (ClusterMessage*)&badBrokerMessage,
             &sentAt1,
             &newSendDelay1 );
 
@@ -889,7 +889,7 @@ namespace TestLHClusterNS
             goodHeartbeat2,
             goodHeartbeat3
         };
-  
+
 
         // null message, ClientProxyStat::FailedBrokerReceives
         worker->currentTime = 0;
@@ -910,7 +910,7 @@ namespace TestLHClusterNS
         STATS_ASSERT_EQ(
             1,
             worker->stats[ WorkerStat::BrokerHeartbeatsReceived ] );
-        ASSERT_EQ( newSendDelay1, worker->brokerHeartbeatDelay);
+        ASSERT_EQ( newSendDelay1, worker->brokerHeartbeatDelay );
 
         // noDelim
         worker->currentTime = 0;
@@ -1020,27 +1020,27 @@ namespace TestLHClusterNS
     // The function will only send receipt on successful send
     // The function will abort on any parse failure
 
-    void checkWorkerInProgressRequests( const Worker& worker, RequestType rt, RequestId rid, uint32_t expectedNumInprogress ) 
+    void checkWorkerInProgressRequests( const Worker& worker, RequestType rt, RequestId rid, uint32_t expectedNumInprogress )
     {
-            auto it = worker.requestTypeContexts.find( rt );
-            auto it2 = it->second.GetInProgressRequests().find( rid );
-            ASSERT_TRUE(
-                it !=
-                worker.requestTypeContexts.end() );
-            ASSERT_EQ( expectedNumInprogress, it->second.GetInProgressRequests().size() );
-            ASSERT_TRUE( it2 != it->second.GetInProgressRequests().end() );
+        auto it = worker.requestTypeContexts.find( rt );
+        auto it2 = it->second.GetInProgressRequests().find( rid );
+        ASSERT_TRUE(
+            it !=
+            worker.requestTypeContexts.end() );
+        ASSERT_EQ( expectedNumInprogress, it->second.GetInProgressRequests().size() );
+        ASSERT_TRUE( it2 != it->second.GetInProgressRequests().end() );
     }
 
-    void checkWorkerInProgressRequests( const Worker& worker, RequestType rt, uint32_t expectedNumInprogress ) 
+    void checkWorkerInProgressRequests( const Worker& worker, RequestType rt, uint32_t expectedNumInprogress )
     {
-            auto it = worker.requestTypeContexts.find( rt );
-            ASSERT_TRUE(
-                it !=
-                worker.requestTypeContexts.end() );
-            ASSERT_EQ( expectedNumInprogress, it->second.GetInProgressRequests().size() );
+        auto it = worker.requestTypeContexts.find( rt );
+        ASSERT_TRUE(
+            it !=
+            worker.requestTypeContexts.end() );
+        ASSERT_EQ( expectedNumInprogress, it->second.GetInProgressRequests().size() );
     }
 
- 
+
     TEST_F( TestWorker, TestHandleBrokerNewRequest )
     {
         int ret = 0;
@@ -1141,7 +1141,7 @@ namespace TestLHClusterNS
         vector< const char* > oneData{ "dataA1" };
         vector< const char* > someData{ "dataB1", "dataB2", "dataB3" };
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {rt0, rt1, rt2, rt3}));
+            createWorker( socketFactory, senderReceiver, { rt0, rt1, rt2, rt3 } ) );
 
         noClientEnv = createBrokerNewRequest(
             frameHandler,
@@ -1434,11 +1434,11 @@ namespace TestLHClusterNS
         ASSERT_EQ( 1, worker->requestContexts.size() );
         ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt1, rid1, 1 ) );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->requestProcessorMessagingSocket,
-                    senderReceiver.sentMessages[1].first );
+        ASSERT_EQ( (TestZMQSocket*)worker->requestProcessorMessagingSocket,
+            senderReceiver.sentMessages[ 1 ].first );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[1].second,
+                frameHandler, senderReceiver.sentMessages[ 1 ].second,
                 responseTypeAsync, rt1, rid1, oneData ) );
 
         /*
@@ -1494,9 +1494,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt1, rid3, 2 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[4].second,
+                frameHandler, senderReceiver.sentMessages[ 4 ].second,
                 responseTypeAsync, rt1, rid3, oneData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[5].second, rt1, rid3, quadrupleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 5 ].second, rt1, rid3, quadrupleEnv ) );
 
 
         /*
@@ -1527,9 +1527,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt2, rid1, 1 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[6].second,
+                frameHandler, senderReceiver.sentMessages[ 6 ].second,
                 responseTypeAsync, rt2, rid1, oneData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[7].second, rt2, rid1, singleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 7 ].second, rt2, rid1, singleEnv ) );
 
         /*
         goodMsgAsync = createBrokerNewRequest(
@@ -1560,9 +1560,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt2, rid2, 2 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[8].second,
+                frameHandler, senderReceiver.sentMessages[ 8 ].second,
                 responseTypeAsync, rt2, rid2, oneData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[9].second, rt2, rid2, singleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 9 ].second, rt2, rid2, singleEnv ) );
 
         /*
         goodMsgSync = createBrokerNewRequest(
@@ -1594,9 +1594,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt2, rid3, 3 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[10].second,
+                frameHandler, senderReceiver.sentMessages[ 10 ].second,
                 responseTypeSync, rt2, rid3, oneData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[11].second, rt2, rid3, singleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 11 ].second, rt2, rid3, singleEnv ) );
 
         /*
         goodMultiData = createBrokerNewRequest(
@@ -1629,9 +1629,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt3, rid1, 1 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[12].second,
+                frameHandler, senderReceiver.sentMessages[ 12 ].second,
                 responseTypeAsync, rt3, rid1, someData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[13].second, rt3, rid1, singleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 13 ].second, rt3, rid1, singleEnv ) );
 
         /*
         goodMsgNoData = createBrokerNewRequest(
@@ -1665,9 +1665,9 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt3, rid2, 2 ) );
         ASSERT_NO_FATAL_FAILURE(
             checkForwardedRequest(
-                frameHandler, senderReceiver.sentMessages[14].second,
+                frameHandler, senderReceiver.sentMessages[ 14 ].second,
                 responseTypeAsync, rt3, rid2, noData ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[15].second, rt3, rid2, singleEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 15 ].second, rt3, rid2, singleEnv ) );
 
         /*
         goodMsgForRedirect = createBrokerNewRequest(
@@ -1700,7 +1700,7 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt2, rid3, 3 ) );
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt3, rid1, 2 ) );
         ASSERT_NO_FATAL_FAILURE( checkWorkerInProgressRequests( *worker, rt3, rid2, 2 ) );
-        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[16].second, rt1, rid1, toRedirectToEnv ) );
+        ASSERT_NO_FATAL_FAILURE( checkReceipt( frameHandler, senderReceiver.sentMessages[ 16 ].second, rt1, rid1, toRedirectToEnv ) );
     }
 
     TEST_F( TestWorker, TestCheckBrokerPulse )
@@ -1708,7 +1708,7 @@ namespace TestLHClusterNS
         TestZMQSocketFactory socketFactory;
         TestZMQSocketSenderReceiver senderReceiver;
         unique_ptr< Worker > worker(
-            createWorker( socketFactory, senderReceiver, {3}));
+            createWorker( socketFactory, senderReceiver, { 3 } ) );
         int ret = 0;
 
         worker->brokerLastActive = 10;
@@ -1722,7 +1722,7 @@ namespace TestLHClusterNS
         ASSERT_EQ( 0, ret );
         ASSERT_EQ( WorkerExitState::None, worker->exitState );
         STATS_ASSERT_EQ( 0, worker->stats[ WorkerStat::BrokerDeaths ] );
-        
+
         ASSERT_FALSE( worker->isBrokerAliveAsOf( 37 ) );
         worker->currentTime = 37;
         ret = worker->checkBrokerPulse();
@@ -1740,22 +1740,22 @@ namespace TestLHClusterNS
         bool inProgress, bool rContext )
     {
         ZMQFrameHandler frameHandler;
-        if( inProgress )
+        if ( inProgress )
         {
             auto it = worker.requestTypeContexts.find( requestType );
-            if( it != worker.requestTypeContexts.end() )
+            if ( it != worker.requestTypeContexts.end() )
                 it->second.AddInProgress( requestId );
         }
 
-        if( rContext )
+        if ( rContext )
         {
             ClientEnvelope cenv;
 
             ZMQMessage* msg = zmsg_new();
-            for( auto it = env.rbegin(); it != env.rend(); ++it )
+            for ( auto it = env.rbegin(); it != env.rend(); ++it )
                 frameHandler.prepend_message_value< string >( msg, string( *it ) );
 
-            for( auto it = env.begin(); it != env.end(); ++it )
+            for ( auto it = env.begin(); it != env.end(); ++it )
             {
                 ZMQFrame* frame = zmsg_pop( msg );
                 cenv.push_back( frame );
@@ -1765,15 +1765,15 @@ namespace TestLHClusterNS
 
             worker.requestContexts.insert(
                 std::pair<
-                    std::pair< RequestType, RequestId >,
-                    ClientRequestContext&& >( 
-                        std::pair< RequestType, RequestId>(
-                            requestType, requestId ),
-                        ClientRequestContext(
-                            requestType,
-                            requestId,
-                            vfs,
-                            move( cenv ) ) ) );
+                std::pair< RequestType, RequestId >,
+                ClientRequestContext&& >(
+                    std::pair< RequestType, RequestId>(
+                        requestType, requestId ),
+                    ClientRequestContext(
+                        requestType,
+                        requestId,
+                        vfs,
+                        move( cenv ) ) ) );
         }
     }
 
@@ -1794,7 +1794,7 @@ namespace TestLHClusterNS
             inProgress,
             rContext );
     }
-    
+
     void checkResponseMessage(
         unsigned int line,
         ZMQFrameHandler& frameHandler,
@@ -1803,7 +1803,7 @@ namespace TestLHClusterNS
         RequestId requestId,
         const LHCVersionFlags& vfs,
         RequestStatus requestStatus,
-        const vector< const char* >& env, 
+        const vector< const char* >& env,
         const vector< const char* >& data )
     {
         ZMQFrame* frame( nullptr );
@@ -1811,7 +1811,7 @@ namespace TestLHClusterNS
         unsigned int expectedSize = 7 + env.size() + data.size();
 
         // if( ! vfs.hasAny( MessageFlag::Asynchronous ) )
-            ++expectedSize; // for broker message             
+        ++expectedSize; // for broker message
 
         ASSERT_TRUE( nullptr != zmqMessage )
             << "failed at line " << line;
@@ -1830,25 +1830,25 @@ namespace TestLHClusterNS
             << "failed at line " << line;
 
         // client env
-        for( auto it = env.begin(); it != env.end(); ++it )
+        for ( auto it = env.begin(); it != env.end(); ++it )
         {
             frame = zmsg_next( zmqMessage );
             ASSERT_EQ( string( *it ), frameHandler.get_frame_value< string >( frame ) )
                 << "failed at line " << line;
         }
-        
+
         // null delim of client env
         frame = zmsg_next( zmqMessage );
         ASSERT_EQ( 0, zframe_size( frame ) )
             << "failed at line " << line;
-            
+
         // if( ! vfs.hasAny( MessageFlag::Asynchronous ) )
         // {
             // broker message
-            frame = zmsg_next( zmqMessage );
-            ASSERT_EQ( ClusterMessage::BrokerResponse,
-                       frameHandler.get_frame_value< ClusterMessage >( frame ) )
-                << "failed at line " << line;
+        frame = zmsg_next( zmqMessage );
+        ASSERT_EQ( ClusterMessage::BrokerResponse,
+            frameHandler.get_frame_value< ClusterMessage >( frame ) )
+            << "failed at line " << line;
         // }
 
         // vfs
@@ -1872,7 +1872,7 @@ namespace TestLHClusterNS
             << "failed at line " << line;
 
         // data
-        for( auto it = data.begin(); it != data.end(); ++it )
+        for ( auto it = data.begin(); it != data.end(); ++it )
         {
             frame = zmsg_next( zmqMessage );
             ASSERT_EQ( string( *it ), frameHandler.get_frame_value< string >( frame ) )
@@ -1976,7 +1976,7 @@ namespace TestLHClusterNS
 
         unique_ptr< Worker > worker(
             createWorker( socketFactory, senderReceiver,
-                          { requestType1, hasRT1And2And3, requestType4, requestType5 }));
+                { requestType1, hasRT1And2And3, requestType4, requestType5 } ) );
 
 
         noRequestType = createRequestHandlerResponse(
@@ -2161,7 +2161,7 @@ namespace TestLHClusterNS
         STATS_ASSERT_EQ( 0, worker->stats[ WorkerStat::RequestsCompletedSent ] );
 
 
-        
+
         //  4. No rt context and no request context
         ret = worker->handleProcessorMessage();
         ASSERT_EQ( 0, ret );
@@ -2202,7 +2202,7 @@ namespace TestLHClusterNS
         STATS_ASSERT_EQ( 2, worker->stats[ WorkerStat::MissingRequestTypeContext ] );
         STATS_ASSERT_EQ( 3, worker->stats[ WorkerStat::MissingRequestContext ] );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::CompletedRequestsNotInProgress ] );
-        ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, hasRT1And2And3, missingRID2, true, false, false ) ); 
+        ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, hasRT1And2And3, missingRID2, true, false, false ) );
 #undef badContextsUnchanged
 #define badContextsUnchanged( line ) \
         checkRTCAndIPAndRC( line, *worker, missingRT2, hasRID1, false, false, false ); \
@@ -2251,27 +2251,27 @@ namespace TestLHClusterNS
         ASSERT_NO_FATAL_FAILURE( badContextsUnchanged( __LINE__ ) );
         ASSERT_NO_FATAL_FAILURE( goodContextsUnchanged( __LINE__ ) );
 
-/*
-        env2
-        goodSyncNoData = createRequestHandlerResponse(
-            frameHandler, &requestType5, &requestID1, &statusSucceeded, noData
-        );
+        /*
+                env2
+                goodSyncNoData = createRequestHandlerResponse(
+                    frameHandler, &requestType5, &requestID1, &statusSucceeded, noData
+                );
 
-        env3
-        goodSyncSomeData = createRequestHandlerResponse(
-            frameHandler, &requestType4, &requestID2, &statusFailed, someData1
-        );
+                env3
+                goodSyncSomeData = createRequestHandlerResponse(
+                    frameHandler, &requestType4, &requestID2, &statusFailed, someData1
+                );
 
-        env4
-        goodAsyncNoData = createRequestHandlerResponse(
-            frameHandler, &requestType4, &requestID3, &statusFailed, noData
-        );
+                env4
+                goodAsyncNoData = createRequestHandlerResponse(
+                    frameHandler, &requestType4, &requestID3, &statusFailed, noData
+                );
 
-        env5
-        goodAsyncSomeData = createRequestHandlerResponse(
-            frameHandler, &requestType5, &requestID4, &statusSucceeded, someData2
-        );
-*/
+                env5
+                goodAsyncSomeData = createRequestHandlerResponse(
+                    frameHandler, &requestType5, &requestID4, &statusSucceeded, someData2
+                );
+        */
 
         // 10. Good, Sync no data
         ret = worker->handleProcessorMessage();
@@ -2279,17 +2279,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 2, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::SyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 1 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 1 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 1 ].second,
             requestType5,
             requestID1,
             responseTypeSync,
-            statusSucceeded, 
-            env2, 
+            statusSucceeded,
+            env2,
             noData ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType5, requestID1, true, false, false ) );
 #undef goodContextsUnchanged
@@ -2307,17 +2307,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 3, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 2, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 2, worker->stats[ WorkerStat::SyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 2 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 2 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 2 ].second,
             requestType4,
             requestID2,
             responseTypeSync,
-            statusFailed, 
-            env3, 
+            statusFailed,
+            env3,
             someData1 ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType4, requestID2, true, false, false ) );
 #undef goodContextsUnchanged
@@ -2336,17 +2336,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 4, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 3, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 2, worker->stats[ WorkerStat::AsyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 3 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 3 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 3 ].second,
             requestType4,
             requestID3,
             responseTypeAsync,
-            statusFailed, 
-            env4, 
+            statusFailed,
+            env4,
             noData ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType4, requestID3, true, false, false ) );
 #undef goodContextsUnchanged
@@ -2364,17 +2364,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 5, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 4, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 3, worker->stats[ WorkerStat::AsyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 4 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 4 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 4 ].second,
             requestType5,
             requestID4,
             responseTypeAsync,
-            statusSucceeded, 
-            env5, 
+            statusSucceeded,
+            env5,
             someData2 ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType5, requestID4, true, false, false ) );
 #undef goodContextsUnchanged
@@ -2440,7 +2440,7 @@ namespace TestLHClusterNS
 
         unique_ptr< Worker > worker(
             createWorker( socketFactory, senderReceiver,
-                          { requestType4 } ) );
+                { requestType4 } ) );
 
         goodSyncSomeData = createRequestHandlerResponse(
             frameHandler, &requestType4, &requestID2, &statusFailed, someData1,
@@ -2469,6 +2469,7 @@ namespace TestLHClusterNS
             checkRTCAndIPAndRC(
                 __LINE__, *worker, requestType4, requestID3, true, true, true ) );
 
+#undef goodContextsUnchanged
 #define goodContextsUnchanged( line ) \
         checkRTCAndIPAndRC( line, *worker, requestType4, requestID2, true, true, true ); \
         checkRTCAndIPAndRC( line, *worker, requestType4, requestID3, true, true, true );
@@ -2480,17 +2481,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 1, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::SyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 0 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 0 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 0 ].second,
             requestType4,
             requestID2,
             responseTypeSync,
-            statusFailed, 
-            env3, 
+            statusFailed,
+            env3,
             someData1 ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType4, requestID2, true, false, false ) );
 #undef goodContextsUnchanged
@@ -2505,17 +2506,17 @@ namespace TestLHClusterNS
         ASSERT_EQ( 2, senderReceiver.sentMessages.size() );
         STATS_ASSERT_EQ( 2, worker->stats[ WorkerStat::RequestsCompletedSent ] );
         STATS_ASSERT_EQ( 1, worker->stats[ WorkerStat::AsyncRequestsCompleted ] );
-        ASSERT_EQ( ( TestZMQSocket* ) worker->messagingSocket, 
-                   senderReceiver.sentMessages[ 1 ].first );
-        ASSERT_NO_FATAL_FAILURE( checkResponseMessage( 
+        ASSERT_EQ( (TestZMQSocket*)worker->messagingSocket,
+            senderReceiver.sentMessages[ 1 ].first );
+        ASSERT_NO_FATAL_FAILURE( checkResponseMessage(
             __LINE__,
             frameHandler,
             senderReceiver.sentMessages[ 1 ].second,
             requestType4,
             requestID3,
             responseTypeAsync,
-            statusFailed, 
-            env4, 
+            statusFailed,
+            env4,
             noData ) );
         ASSERT_NO_FATAL_FAILURE( checkRTCAndIPAndRC( __LINE__, *worker, requestType4, requestID3, true, false, false ) );
 #undef goodContextsUnchanged

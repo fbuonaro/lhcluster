@@ -1,0 +1,7 @@
+if( EXISTS "@CMAKE_CURRENT_SOURCE_DIR@/poetry.lock" )
+    message( STATUS "poetry.lock exists, copying poetry.lock .." )
+    # ${CMAKE_COMMAND} -E copy "@CMAKE_CURRENT_SOURCE_DIR@/poetry.lock" "@CMAKE_CURRENT_BINARY_DIR@"
+    # ${CMAKE_COMMAND} -E copy "@CMAKE_CURRENT_SOURCE_DIR@/poetry.lock" "@CMAKE_CURRENT_BINARY_DIR@"/poetry.lock.original
+else()
+    message( STATUS "poetry.lock does not exist, nothing to copy .." )
+endif()

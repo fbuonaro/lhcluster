@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "renaming generated wheel file .."
+find "@PY_WHL_BUILD_DIR@" -maxdepth 1 -type f | \
+grep "@PROJECT_NAME@-@PROJECT_VERSION@.*.whl" | \
+xargs -I{} cp {} "@PY_WHL_TARGET_FILE@"

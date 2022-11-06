@@ -1,2 +1,2 @@
 # pylhcluster
-Python wrapper around liblhcluster
+Python wrapper around liblhcluster through libpylhclusterext

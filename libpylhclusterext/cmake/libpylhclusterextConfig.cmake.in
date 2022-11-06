@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+find_package( Python3 3.6 COMPONENTS Interpreter Development EXACT REQUIRED )
+find_package( Boost 1.69 COMPONENTS python36 REQUIRED )
+find_package( liblhcluster REQUIRED )
+
+if(NOT TARGET @PROJECT_NAME@::@PROJECT_NAME@)
+    include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake)
+endif()
