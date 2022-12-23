@@ -119,29 +119,14 @@ ADD_CUSTOM_TARGET( install-pylhcluster
 # packaging
 ##############################################################
 
-# boilerplate ..
-set( CPACK_PROJECT_NAME ${PROJECT_NAME} )
-set( CPACK_PROJECT_VERSION ${PROJECT_VERSION} )
-set( CPACK_COMPONENTS_GROUPING ONE_PER_GROUP )
-set( CPACK_GENERATOR "RPM" )
-
 # set( CPACK_GENERATOR "RPM" "TGZ" )
 # CPACK_RPM_BUILD_REQUIRES
-set( CPACK_RPM_PACKAGE_REQUIRES "python3-devel >= 1.1.0" )
-
-set( CPACK_RPM_PACKAGE_RELOCATABLE ON)
-set( CPACK_RPM_COMPONENT_INSTALL ON )
+set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES "python3-devel >= 1.1.0" )
 
 # to relocate the pc file prefix to /somewhere if 'rpm --install --prefix /somewhere'
-set( CPACK_RPM_PACKAGE_REQUIRES_POST "sed" ) 
-set( CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" )
+set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES_POST "sed" ) 
+set( CPACK_RPM_PYLHCLUSTER_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" )
 
-include( CPack )
+set( LH_PACKAGE_DESC "pylhcluster modules package")
 
-# component, group can be different; group will appended to package
-cpack_add_component(pylhcluster
-    DISPLAY_NAME  "pylhcluster package"
-    DESCRIPTION   "pylhcluster package"
-    GROUP pylhcluster)
-cpack_add_component_group(pylhcluster)
-# .. boilerplate
+lh_add_cpack_component()

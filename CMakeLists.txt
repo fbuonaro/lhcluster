@@ -9,6 +9,10 @@ project( lhcluster
 
 enable_testing()
 
-add_subdirectory( liblhcluster )
-add_subdirectory( libpylhclusterext )
-add_subdirectory( pylhcluster )
+set(LH_SUBDIRECTORIES liblhcluster libpylhclusterext pylhcluster)
+
+include("cmake/lhmacros.cmake")
+
+lh_toplevel_add_subdirectories()
+
+lh_toplevel_add_cpack_package_components()
