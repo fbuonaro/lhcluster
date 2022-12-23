@@ -11,7 +11,7 @@ enable_testing()
 
 set(LH_SUBDIRECTORIES liblhcluster libpylhclusterext pylhcluster)
 
-include("cmake/lhmacros.cmake")
+include("modules/lhscriptutil/cmake/lhmacros.cmake")
 
 lh_toplevel_add_subdirectories()
 
