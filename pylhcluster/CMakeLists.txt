@@ -103,16 +103,19 @@ add_test( NAME pylhcluster_notify COMMAND tox -e pytest -- test_notify.py )
 # python installation
 ##############################################################
 
+# name of component to install
+set(LH_COMPONENT_NAME pylhcluster )
+
 # package
  
 # TODO - determine what the destination lib should be
 install( DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pip_install/lib/python3.6"
          DESTINATION "lib64"
-         COMPONENT pylhcluster )
+         COMPONENT ${LH_COMPONENT_NAME} )
 
-ADD_CUSTOM_TARGET( install-pylhcluster
+ADD_CUSTOM_TARGET( install-${LH_COMPONENT_NAME}
                    ${CMAKE_COMMAND}
-                   -D "CMAKE_INSTALL_COMPONENT=pylhcluster"
+                   -D "CMAKE_INSTALL_COMPONENT=${LH_COMPONENT_NAME}"
                    -P "cmake_install.cmake" )
 
 ##############################################################
@@ -121,11 +124,11 @@ ADD_CUSTOM_TARGET( install-pylhcluster
 
 # set( CPACK_GENERATOR "RPM" "TGZ" )
 # CPACK_RPM_BUILD_REQUIRES
-set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES "python3-devel >= 1.1.0" )
+set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES "python3-devel >= 1.1.0, lhcluster-liblhcluster >= 1.0.0" PARENT_SCOPE)
 
 # to relocate the pc file prefix to /somewhere if 'rpm --install --prefix /somewhere'
-set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES_POST "sed" ) 
-set( CPACK_RPM_PYLHCLUSTER_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" )
+set( CPACK_RPM_PYLHCLUSTER_PACKAGE_REQUIRES_POST "sed" PARENT_SCOPE) 
+set( CPACK_RPM_PYLHCLUSTER_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" PARENT_SCOPE)
 
 set( LH_PACKAGE_DESC "pylhcluster modules package")
 

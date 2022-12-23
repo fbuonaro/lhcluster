@@ -6,7 +6,7 @@ endmacro()
 
 macro(lh_toplevel_add_cpack_components_from_subdirectories)
     foreach(subdirectory ${LH_SUBDIRECTORIES})
-        foreach(component_desc ${"${subdirectory}_components"})
+        foreach(component_desc ${${subdirectory}_components})
             string(FIND "${component_desc}" ":" pos)
             if (pos LESS 1)
                 message(WARNING "Skipping malformed component (expected format <component>:<desc>): ${component_desc}")
@@ -36,19 +36,12 @@ endmacro()
 macro(lh_add_shared_library)
     # libs
     add_library( ${LH_LIB_NAME} SHARED ${LH_LIB_SRC_FILES} )
-    add_library( ${LH_LIB_NAME}_static STATIC ${LH_LIB_SRC_FILES} )
     # lib deps
     target_link_libraries( ${LH_LIB_NAME}
                         PUBLIC "${LH_LIB_PUBLIC_LINKLIBS}"
                         PRIVATE "${LH_LIB_PRIVATE_LINKLIBS}" )
-    target_link_libraries( ${LH_LIB_NAME}_static
-                        PUBLIC "${LH_LIB_PUBLIC_LINKLIBS}"
-                        PRIVATE "${LH_LIB_PRIVATE_LINKLIBS}" )
     # header deps
     target_include_directories( ${LH_LIB_NAME}
-                                PUBLIC "${LH_LIB_PUBLIC_INCLUDES}"
-                                PRIVATE "${LH_LIB_PRIVATE_INCLUDES}" )
-    target_include_directories( ${LH_LIB_NAME}_static
                                 PUBLIC "${LH_LIB_PUBLIC_INCLUDES}"
                                 PRIVATE "${LH_LIB_PRIVATE_INCLUDES}" )
     # properties
@@ -58,10 +51,6 @@ macro(lh_add_shared_library)
                             SOVERSION ${PROJECT_VERSION}
                             VERSION ${PROJECT_VERSION}
                             CLEAN_DIRECT_OUTPUT 1)
-    set_target_properties( ${LH_LIB_NAME}_static 
-                        PROPERTIES
-                            ARCHIVE_OUTPUT_DIRECTORY "${LH_INSTALL_LIBDIR}"
-                            OUTPUT_NAME ${LH_LIB_NAME} )
 endmacro()
 
 macro(lh_add_static_library)
@@ -105,7 +94,7 @@ macro(lh_add_install_library)
                 DESTINATION "${LH_INSTALL_INCDIR}"
                 COMPONENT ${LH_COMPONENT_NAME}
                 FILES_MATCHING PATTERN "*.h" )
-    endforeach
+    endforeach()
     # install export for things outside of build
     install( EXPORT ${LH_COMPONENT_NAME}-targets 
             FILE ${LH_COMPONENT_NAME}Targets.cmake 
@@ -142,14 +131,14 @@ macro(lh_add_install_cmake_config)
 
     configure_package_config_file( "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
                                 "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-                                INSTALL_DESTINATION "${INSTALL_LIBDIR}/cmake" )
+                                INSTALL_DESTINATION "${LH_INSTALL_LIBDIR}/cmake" )
 
     write_basic_package_version_file( "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
                                     VERSION "${PROJECT_VERSION}"
                                     COMPATIBILITY SameMajorVersion )
 
     install( FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake" "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-            DESTINATION "${INSTALL_LIBDIR}/cmake"
+            DESTINATION "${LH_INSTALL_LIBDIR}/cmake"
             COMPONENT liblhcluster )
 endmacro()
 

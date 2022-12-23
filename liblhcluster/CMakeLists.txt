@@ -21,9 +21,9 @@ add_compile_options( -Wall -Wextra -pedantic -Werror -DBOOST_LOG_DYN_LINK)
 ##############################################################
 
 # install directories
-set( INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}" )
-set( INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/liblhcluster_${PROJECT_VERSION}" )
-set( INSTALL_INCDIR "${CMAKE_INSTALL_INCLUDEDIR}/lhcluster_${PROJECT_VERSION}" )
+set( LH_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}" )
+set( LH_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/liblhcluster_${PROJECT_VERSION}" )
+set( LH_INSTALL_INCDIR "${CMAKE_INSTALL_INCLUDEDIR}/lhcluster_${PROJECT_VERSION}" )
 
 # pull in boost log
 find_package( Boost 1.69 COMPONENTS log REQUIRED )
@@ -137,7 +137,7 @@ target_link_libraries( testlhcluster
 
 target_include_directories( testlhcluster
                             PRIVATE
-                                "${LIB_PRIVATE_INCLUDES}"
+                                "${LH_LIB_PRIVATE_INCLUDES}"
                                 "${CMAKE_CURRENT_BINARY_DIR}"
                                 "${GTEST_INCLUDE_DIRS}" )
 
@@ -158,8 +158,8 @@ lh_add_install_library()
 ##############################################################
 # pkg-config
 ##############################################################
-set( PC_INCDIR "${INSTALL_INCDIR}")
-set( PC_LIBDIR "${INSTALL_LIBDIR}")
+set( PC_INCDIR "${LH_INSTALL_INCDIR}")
+set( PC_LIBDIR "${LH_INSTALL_LIBDIR}")
 set( PC_PUBREQS )
 set( PC_PRIVREQS )
 set( PC_CFLAGS "-DBOOST_LOG_DYN_LINK")
@@ -182,11 +182,11 @@ lh_add_install_cmake_config()
 # rpm packaging
 ##############################################################
  
-set( CPACK_RPM_LIBLHCLUSTER_PACKAGE_REQUIRES "czmq-devel >= 3.0.2" )
+set( CPACK_RPM_LIBLHCLUSTER_PACKAGE_REQUIRES "czmq-devel >= 3.0.2" PARENT_SCOPE)
 
 # to relocate the pc file prefix to /somewhere if 'rpm --install --prefix /somewhere'
-set( CPACK_RPM_LIBLHCLUSTER_PACKAGE_REQUIRES_POST "sed" ) 
-set( CPACK_RPM_LIBLHCLUSTER_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" )
+set( CPACK_RPM_LIBLHCLUSTER_PACKAGE_REQUIRES_POST "sed" PARENT_SCOPE) 
+set( CPACK_RPM_LIBLHCLUSTER_POST_INSTALL_SCRIPT_FILE "${PC_RELOCATE_SCRIPT}" PARENT_SCOPE)
 
 set(LH_PACKAGE_DESC "liblhcluster libraries package")
 

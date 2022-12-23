@@ -81,7 +81,7 @@ set( LH_LIB_PUBLIC_INCLUDES
      $<INSTALL_INTERFACE:${INSTALL_INCDIR}> )                          # export
 set( LH_LIB_PRIVATE_INCLUDES )
 
-lh_add_library()
+lh_add_shared_library()
 
 ##############################################################
 # unit tests

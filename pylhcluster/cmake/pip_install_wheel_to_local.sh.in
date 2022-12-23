@@ -3,4 +3,4 @@
 echo "installing wheel to local prefix .."
 rm -rf @CMAKE_CURRENT_BINARY_DIR@/pip_install
 mkdir @CMAKE_CURRENT_BINARY_DIR@/pip_install
-pip3.6 install --prefix=@CMAKE_CURRENT_BINARY_DIR@/pip_install @PY_WHL_TARGET_FILE@
+pip3.6 install --ignore-installed --prefix=@CMAKE_CURRENT_BINARY_DIR@/pip_install @PY_WHL_TARGET_FILE@
