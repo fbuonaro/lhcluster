@@ -5,7 +5,6 @@ project( pylhcluster
          HOMEPAGE_URL "https://github.com/fbuonaro/lhcluster/pylhcluster"
          VERSION 1.0.0 )
 
-
 #############################################################
 # python packaging (python wheel with library)
 ##############################################################

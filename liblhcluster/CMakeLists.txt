@@ -20,6 +20,9 @@ add_compile_options( -Wall -Wextra -pedantic -Werror -DBOOST_LOG_DYN_LINK)
 # library
 ##############################################################
 
+# library name
+set( LH_LIB_NAME lhcluster )
+
 # install directories
 set( LH_INSTALL_BINDIR "${CMAKE_INSTALL_BINDIR}" )
 set( LH_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/liblhcluster_${PROJECT_VERSION}" )
@@ -34,9 +37,6 @@ find_package( Protobuf 3.0 REQUIRED )
 # generate protobuf source and headers from prototype
 PROTOBUF_GENERATE_CPP(
     PROTO_SRCS PROTO_HDRS "./proto/zmqframetype.proto" )
-
-# library name
-set( LH_LIB_NAME lhcluster )
 
 # source files
 set( LH_LIB_SRC_FILES 
@@ -98,7 +98,7 @@ set( LH_LIB_PRIVATE_LINKLIBS pthread protobuf )
 set( LH_LIB_PUBLIC_INCLUDES 
      "${Boost_INCLUDE_DIR}"
      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/lhcluster>   # build
-     $<INSTALL_INTERFACE:${INSTALL_INCDIR}> )                          # export
+     $<INSTALL_INTERFACE:${LH_INSTALL_INCDIR}> )                          # export
 set( LH_LIB_PRIVATE_INCLUDES 
      "${CMAKE_CURRENT_BINARY_DIR}" 
      "${CMAKE_CURRENT_SOURCE_DIR}/include/lhcluster_impl"

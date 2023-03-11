@@ -78,7 +78,7 @@ set( LH_LIB_PUBLIC_INCLUDES
      "${Boost_INCLUDE_DIR}"
      "${Python3_INCLUDE_DIRS}"
      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/pylhclusterext>   # build
-     $<INSTALL_INTERFACE:${INSTALL_INCDIR}> )                          # export
+     $<INSTALL_INTERFACE:${LH_INSTALL_INCDIR}> )                          # export
 set( LH_LIB_PRIVATE_INCLUDES )
 
 lh_add_shared_library()
