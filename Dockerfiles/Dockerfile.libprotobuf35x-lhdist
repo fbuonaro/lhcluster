@@ -13,7 +13,12 @@ RUN yum -y --enablerepo=extras install epel-release && \
 ##################################################################################
 # STAGE 1 - build tools and libraries needed to build libprotobuf35x
 ##################################################################################
+### deps ###
+FROM lhscriptutil:dist-${BUILD_TAG} AS lhscriptutil_dist_build
+### deps ###
 FROM libprotobuf35x-lhdist-base-env as libprotobuf35x-lhdist-build-env
+
+COPY --from=lhscriptutil_dist_build /lhscriptutil/ /lhscriptutil/
 
 # for compiling and unit testing
 RUN yum -y install \
@@ -44,12 +49,11 @@ FROM libprotobuf35x-lhdist-build-env as libprotobuf35x-lhdist-build
 
 RUN mkdir -p /libprotobuf35x-lhdist
 
-ADD ./modules/lhscriptutil/scripts/rpmdev-setuptree-at.sh /libprotobuf35x-lhdist
 ADD ./dist/libprotobuf35x-lhdist.spec /libprotobuf35x-lhdist
 
 RUN cd /libprotobuf35x-lhdist && \
     mkdir build && \
-    ./rpmdev-setuptree-at.sh ./build && \
+    /lhscriptutil/scripts/rpmdev-setuptree-at.sh ./build && \
     rpmbuild --define "_topdir ${PWD}/build"  -ba ./libprotobuf35x-lhdist.spec && \
     mkdir -p /lhdist && \
     find ./build/RPMS/ | grep "\.rpm" | xargs -I{} cp -f -u {} /lhdist
@@ -64,8 +68,9 @@ LABEL git_commit="${GIT_COMMIT}"
 ##################################################################################
 FROM libprotobuf35x-lhdist-build-env as libprotobuf35x-lhdist-check
 
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
+COPY --from=libprotobuf35x-lhdist-build /lhdist/ /lhdist/
+COPY --from=libprotobuf35x-lhdist-build-env /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 RUN yum -y repo-pkgs lhdistrepo install && \
     yum clean all
 
@@ -74,4 +79,4 @@ RUN yum -y repo-pkgs lhdistrepo install && \
 ##################################################################################
 FROM libprotobuf35x-lhdist-base-env as libprotobuf35x-lhdist-dist
 
-COPY --from=libprotobuf35x-lhdist-build /lhdist /lhdist
+COPY --from=libprotobuf35x-lhdist-check /lhdist /lhdist

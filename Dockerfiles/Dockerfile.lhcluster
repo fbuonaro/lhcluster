@@ -16,6 +16,7 @@ RUN yum -y --enablerepo=extras install epel-release && \
 # STAGE 1 - build tools and libraries needed to build lhcluster
 ##################################################################################
 ### deps ###
+FROM lhscriptutil:dist-${BUILD_TAG} AS lhscriptutil_dist_build
 FROM libprotobuf35x-lhdist:dist-${BUILD_TAG} AS libprotobuf35x_lhdist_dist_build
 ### deps ###
 FROM lhcluster-base-env as lhcluster-build-env
@@ -44,11 +45,11 @@ ENV PATH="/root/.local/bin:$PATH"
 # for strange python errors
 ENV LC_ALL='en_US.utf8'
 
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
+COPY --from=lhscriptutil_dist_build /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 COPY --from=libprotobuf35x_lhdist_dist_build /lhdist/*.rpm /lhdist/
-RUN /refreshOrSetupLHDistYumRepo.sh
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 RUN yum -y repo-pkgs lhdistrepo install && \
     ldconfig && \
@@ -75,7 +76,7 @@ RUN cd /lhcluster && \
     make && \
     make test && \
     make package && \
-    /refreshOrSetupLHDistYumRepo.sh
+    /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
 
 ENV BUILD_TAG=${BUILD_TAG}
 LABEL build_tag="${BUILD_TAG}"
@@ -101,30 +102,19 @@ ENTRYPOINT [ "python3.6", "-m", "pylhcluster" ]
 ##################################################################################
 FROM lhcluster-base-env as lhcluster-main
 
-COPY --from=lhcluster-build /usr/ /usr/
-COPY --from=lhcluster-build /etc/ /etc/
-COPY --from=lhcluster-build /lhcluster/ /lhcluster/
-RUN cd /lhcluster/build && \
-    make install && \
-    make package && \
+COPY --from=lhcluster-build /lhdist/ /lhdist/
+COPY --from=lhcluster-build-env /lhscriptutil/ /lhscriptutil/
+RUN /lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh
+RUN yum -y repo-pkgs lhdistrepo install && \
     ldconfig && \
-    cd / && \
-    rm -rf /lhcluster
+    yum clean all
+
 ENTRYPOINT [ "python3.6", "-m", "pylhcluster" ]
 
 ##################################################################################
 # STAGE 5 - the base image with additional built runtime dependencies and 
 #           lhcluster binaries includes nothing from build-env
 ##################################################################################
-FROM lhcluster-base-env as lhcluster-dist-test
-
-COPY --from=lhcluster-build /lhdist/ /lhdist/
-ADD ./modules/lhscriptutil/scripts/refreshOrSetupLHDistYumRepo.sh /refreshOrSetupLHDistYumRepo.sh
-RUN /refreshOrSetupLHDistYumRepo.sh
-RUN yum -y repo-pkgs lhdistrepo install && \
-    ldconfig && \
-    yum clean all
-
 FROM lhcluster-base-env as lhcluster-dist
 
-COPY --from=lhcluster-dist-test /lhdist/ /lhdist/
+COPY --from=lhcluster-main /lhdist/ /lhdist/

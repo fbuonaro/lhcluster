@@ -33,6 +33,8 @@
 
 /build/
 *.swp
+/modules/**
+!/modules/.keepdir
 
 **/.git*
 **/.mypy_cache*
