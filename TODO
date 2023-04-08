@@ -1,1 +1,2 @@
 - break pylhcluster_test out of pylhcluster
+- replace protobuf with cereal (add cereal to docker, rewrite zmqframehandler, remove proto refs)
